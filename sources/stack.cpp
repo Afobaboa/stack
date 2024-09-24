@@ -25,13 +25,25 @@ static bool StackIsInit(Stack* stack);
 /**
  * 
  */
+static bool StackIsExpandNeed(Stack* stack);
+
+
+/**
+ * 
+ */
+static bool StackIsCompressNeed(Stack* stack);
+
+
+/**
+ * 
+ */
 static void StackExpand(Stack* stack);
 
 
 /**
  * 
  */
-static void StackCpmpress(Stack* stack);
+static void StackCompress(Stack* stack);
 
 
 //----------------------------------------------------------------------------------------
@@ -93,13 +105,25 @@ static bool StackIsInit(Stack* stack)
 }
 
 
+static bool StackIsExpandNeed(Stack* stack)
+{
+    
+}
+
+
+static bool StackIsCompressNeed(Stack* stack)
+{
+
+}
+
+
 static void StackExpand(Stack* stack)
 {
 
 }
 
 
-static void StackCpmpress(Stack* stack)
+static void StackCompress(Stack* stack)
 {
 
 }
