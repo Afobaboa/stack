@@ -11,6 +11,7 @@
 struct Stack 
 {
     void*  dataBuffer;    /**< Pointer to buffer with stack's data.     */
+    void*  lastElemPtr;   /**< Pointer to the last element of stack.    */
     size_t bufferSize;    /**< Size of stask's buffer in bytes.         */
     size_t takedSize;     /**< Size of taked memory of buffer in bytes. */
 };
@@ -26,7 +27,8 @@ enum STACK_ERRORS
 {
     OK,             /**<  */
     IS_INIT,        /**<  */
-    NOT_INIT        /**<  */
+    NOT_INIT,       /**<  */
+    ALLOCATE_ERROR  /**<  */
 };
 typedef enum STACK_ERRORS stackError_t;
 
