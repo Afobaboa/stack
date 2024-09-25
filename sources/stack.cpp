@@ -8,6 +8,20 @@
 
 
 /**
+ * 
+ */
+struct Stack 
+{
+    void*  dataBuffer;    /**< Pointer to buffer with stack's data.     */
+    size_t bufferSize;    /**< Size of stask's buffer in bytes.         */
+    size_t takedSize;     /**< Size of taked memory of buffer in bytes. */
+};
+
+
+//----------------------------------------------------------------------------------------
+
+
+/**
  * Minimum stack's bufferSize.
  */
 static const size_t MIN_STACK_SIZE = 1024;
@@ -49,35 +63,38 @@ static stackError_t StackCompress(Stack* stack);
 //----------------------------------------------------------------------------------------
 
 
-stackError_t StackInit(Stack* stack)
+stackError_t StackInit(Stack** stack)
 {
-    if (StackIsInit(stack))
+    if (StackIsInit(*stack))
         return IS_INIT;
-    
-    stack->bufferSize  = MIN_STACK_SIZE;
-    stack->takedSize   = 0;
-    stack->dataBuffer  = (void*) calloc(MIN_STACK_SIZE, sizeof(char));
-    stack->lastElemPtr = stack->dataBuffer;
 
-    if (stack->dataBuffer == NULL)
+    *stack = (Stack*) calloc(1, sizeof(Stack));
+    if (stack == NULL)
+        return ALLOCATE_ERROR;
+    
+    (*stack)->bufferSize = MIN_STACK_SIZE;
+    (*stack)->takedSize  = 0;
+    (*stack)->dataBuffer = calloc(MIN_STACK_SIZE, sizeof(char));
+
+    if ((*stack)->dataBuffer == NULL)
         return ALLOCATE_ERROR;
 
     return OK;
 }
 
 
-stackError_t StackDelete(Stack* stack)
+stackError_t StackDelete(Stack** stack)
 {
-    if (!StackIsInit(stack))
+    if (!StackIsInit(*stack))
         return NOT_INIT;
     
-    free(stack->dataBuffer);
-    free(stack->lastElemPtr);
+    free((*stack)->dataBuffer);
+    (*stack)->dataBuffer = NULL;
+    (*stack)->bufferSize = 0;
+    (*stack)->takedSize  = 0;
 
-    stack->dataBuffer  = NULL;
-    stack->lastElemPtr = NULL;
-    stack->bufferSize  = 0;
-    stack->takedSize   = 0;
+    free(*stack);
+    *stack = NULL;
 
     return OK;
 }
@@ -100,10 +117,12 @@ stackError_t StackPush(Stack* stack, void* elemPtr, const size_t elemSize)
 
 static bool StackIsInit(Stack* stack)
 {
-    if (stack->dataBuffer  == NULL &&
-        stack->lastElemPtr == NULL &&
-        stack->bufferSize  == 0    &&
-        stack->takedSize   == 0)
+    if (stack == NULL)
+        return false;
+
+    if (stack->dataBuffer == NULL &&
+        stack->bufferSize == 0    &&
+        stack->takedSize  == 0)
     {
         return false;
     }

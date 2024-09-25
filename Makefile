@@ -36,7 +36,7 @@ RELEASE_FLAGS=-Wmissing-declarations -Wempty-body -DNDEBUG
 
 
 # Name of executable program
-EXECUTABLE=oneginSorter
+EXECUTABLE=stack
 
 
 # Needed directories

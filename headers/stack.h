@@ -8,13 +8,7 @@
 /**
  * 
  */
-struct Stack 
-{
-    void*  dataBuffer;    /**< Pointer to buffer with stack's data.     */
-    void*  lastElemPtr;   /**< Pointer to the last element of stack.    */
-    size_t bufferSize;    /**< Size of stask's buffer in bytes.         */
-    size_t takedSize;     /**< Size of taked memory of buffer in bytes. */
-};
+struct Stack;
 
 
 //----------------------------------------------------------------------------------------
@@ -39,13 +33,13 @@ typedef enum STACK_ERRORS stackError_t;
 /**
  * 
  */
-stackError_t StackInit(Stack* stack);
+stackError_t StackInit(Stack** stack);
 
 
 /**
  * 
  */
-stackError_t StackDelete(Stack* stack);
+stackError_t StackDelete(Stack** stack);
 
 
 /**
