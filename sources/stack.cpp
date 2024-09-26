@@ -227,7 +227,7 @@ static bool StackIsCompressNeed(Stack* stack)
         stack->bufferSize     >= 2 * MIN_STACK_SIZE)
     {
         // printf("bufferSize = %zu, elemCount = %zu, min stack size = %zu\n",
-                stack->bufferSize, stack->elemCount, MIN_STACK_SIZE);
+                // stack->bufferSize, stack->elemCount, MIN_STACK_SIZE);
         return true;
     }
 
