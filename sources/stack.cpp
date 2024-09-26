@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,27 +12,33 @@
 /**
  * 
  */
-#define STACK_TRY_EXPAND(stack)             \
-    {                                       \
-        stackError_t stackError = OK;       \
-        stackError = StackExpand(stack);    \
-                                            \
-        if (stackError != OK)               \
-            return stackError;              \
-    }                                       \
+#define STACK_TRY_EXPAND(stack)                 \
+    {                                           \
+        if (StackIsExpandNeed(stack))           \
+        {                                       \
+            stackError_t stackError = OK;       \
+            stackError = StackExpand(stack);    \
+                                                \
+            if (stackError != OK)               \
+                return stackError;              \
+        }                                       \
+    }                                           \
 
 
 /**
  * 
  */
-#define STACK_TRY_COMPRESS(stack)           \
-    {                                       \
-        stackError_t stackError = OK;       \
-        stackError = StackCompress(stack);  \
-                                            \
-        if (stackError != OK)               \
-            return stackError;              \
-    }                                       \
+#define STACK_TRY_COMPRESS(stack)               \
+    {                                           \
+        if (StackIsCompressNeed(stack))         \
+        {                                       \
+            stackError_t stackError = OK;       \
+            stackError = StackCompress(stack);  \
+                                                \
+            if (stackError != OK)               \
+                return stackError;              \
+        }                                       \
+    }                                           \
 
 
 //----------------------------------------------------------------------------------------
@@ -142,10 +149,18 @@ stackError_t StackPop(Stack* stack, void* elemBufferPtr)
         return UNDERFLOW;
     
     STACK_TRY_COMPRESS(stack);
+    // printf("bufferSize = %zu\n", stack->bufferSize);
 
-    void* stackElemPtr = (char*) stack->dataBuffer + stack->elemCount * stack->elemSize;
+    // printf("dataBuffer = %p\n", stack->dataBuffer);
+    void* stackElemPtr = (char*) stack->dataBuffer + (stack->elemCount - 1) * 
+                                                                        stack->elemSize;
+    // printf("stackElemPtr = %p\n", stackElemPtr);
+    // printf("stackElem value = %d\n\n", *((int*) stackElemPtr));
 
-    if (memmove(elemBufferPtr, stackElemPtr, stack->elemSize == NULL))
+    // printf("elemBuffer value = %d\n\n", *((int*) elemBufferPtr));
+
+    // *((int*) elemBufferPtr) = *((int*) stackElemPtr);
+    if (memmove(elemBufferPtr, stackElemPtr, stack->elemSize) == NULL)
         return ALLOCATE_ERROR;
 
     if (memset(stackElemPtr, 0, stack->elemSize) == NULL)
@@ -161,9 +176,15 @@ stackError_t StackPush(Stack* stack, void* elemPtr)
 {
     STACK_TRY_EXPAND(stack);
 
+    // printf("dataBuffer = %p\n", stack->dataBuffer);
     void* stackElemPtr = (char*) stack->dataBuffer + stack->elemCount * stack->elemSize;
-    if (memmove(stackElemPtr, elemPtr, stack->elemSize == NULL))
+    // printf("stackElemPtr = %p\n", stackElemPtr);
+
+
+    if (memmove(stackElemPtr, elemPtr, stack->elemSize) == NULL)
         return ALLOCATE_ERROR;
+
+    // printf("stackElem value = %d\n\n", *((int*) stackElemPtr));
 
     stack->elemCount += 1;
 
@@ -202,9 +223,11 @@ static bool StackIsExpandNeed(Stack* stack)
 
 static bool StackIsCompressNeed(Stack* stack)
 {
-    if (stack->bufferSize / 4 >= stack->elemCount || 
+    if (stack->bufferSize / 4 >= stack->elemCount &&
         stack->bufferSize     >= 2 * MIN_STACK_SIZE)
     {
+        // printf("bufferSize = %zu, elemCount = %zu, min stack size = %zu\n",
+                stack->bufferSize, stack->elemCount, MIN_STACK_SIZE);
         return true;
     }
 
@@ -213,19 +236,15 @@ static bool StackIsCompressNeed(Stack* stack)
 
 
 static stackError_t StackExpand(Stack* stack)
-{                        
-    if (!StackIsExpandNeed(stack))
-        return OK;
+{                       
                          // FIXME: add MyRecalloc()
-    void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferSize * 2); 
+    void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferSize * 2 * stack->elemSize); 
     if (newDataBuffer == NULL)
         return ALLOCATE_ERROR;
 
     if (stack->dataBuffer != newDataBuffer)
-    {
-        free(stack->dataBuffer);
         stack->dataBuffer = newDataBuffer;
-    }
+
     stack->bufferSize *= 2;
 
     return OK;
@@ -234,18 +253,16 @@ static stackError_t StackExpand(Stack* stack)
 
 static stackError_t StackCompress(Stack* stack)
 {   
-    if (!StackIsCompressNeed(stack))
-        return OK;
                          // FIXME: add MyRecalloc()
-    void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferSize / 2); 
+    // printf("stack->bufferSize = %zu\n", stack->bufferSize);
+    void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferSize / 2 * stack->elemSize);
+    // printf("newDataBuffer = %p\n", newDataBuffer);
     if (newDataBuffer == NULL)
         return ALLOCATE_ERROR;
 
     if (stack->dataBuffer != newDataBuffer)
-    {
-        free(stack->dataBuffer);
         stack->dataBuffer = newDataBuffer;
-    }
+
     stack->bufferSize /= 2;
 
     return OK;

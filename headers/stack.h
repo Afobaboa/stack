@@ -34,7 +34,7 @@ typedef enum STACK_ERRORS stackError_t;
 /**
  * 
  */
-stackError_t StackInit(Stack** stack, const size_t elemSize);
+stackError_t StackInit(Stack** stack, const size_t elemSize); // FIXME: StackCreate
 
 
 /**
