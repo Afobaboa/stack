@@ -98,14 +98,6 @@ objects_dir:
 	fi
 
 
-# Make logs directory if it doesn't exist
-logs: 
-	@if [ ! -d $@ ]; \
-	then             \
-		mkdir $@;    \
-	fi
-
-
 # Clean log files
 log_clean:
 	@rm -f logs/log.txt logs/emergencyLog.txt
