@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "../headers/stack.h"
+#include "../headers/myRecalloc.h"
 
 
 //----------------------------------------------------------------------------------------
@@ -62,7 +63,7 @@ struct Stack
 /**
  * Minimum stack's bufferSize.
  */
-static const size_t MIN_STACK_SIZE = 16;
+static const size_t MIN_STACK_SIZE = 1;
 
 
 //----------------------------------------------------------------------------------------
@@ -238,7 +239,9 @@ static bool StackIsCompressNeed(Stack* stack)
 static stackError_t StackExpand(Stack* stack)
 {                       
                          // FIXME: add MyRecalloc()
-    void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferSize * 2 * stack->elemSize); 
+    // void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferSize * 2 * stack->elemSize); 
+    void* newDataBuffer = MyRecalloc(stack->dataBuffer, stack->bufferSize, 
+                                    stack->bufferSize * 2, stack->elemSize);
     if (newDataBuffer == NULL)
         return ALLOCATE_ERROR;
 
@@ -255,7 +258,8 @@ static stackError_t StackCompress(Stack* stack)
 {   
                          // FIXME: add MyRecalloc()
     // printf("stack->bufferSize = %zu\n", stack->bufferSize);
-    void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferSize / 2 * stack->elemSize);
+    void* newDataBuffer = MyRecalloc(stack->dataBuffer, stack->elemSize,
+                                     stack->bufferSize / 2, stack->elemSize);
     // printf("newDataBuffer = %p\n", newDataBuffer);
     if (newDataBuffer == NULL)
         return ALLOCATE_ERROR;

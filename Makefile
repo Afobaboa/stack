@@ -46,11 +46,11 @@ OBJECTS_DIR=objects
 
 
 # Source files which we use
-SOURCE_FILES=main.cpp stack.cpp
+SOURCE_FILES=main.cpp stack.cpp myRecalloc.cpp
 
     
 # Header files which we use
-HEADER_FILES=stack.h
+HEADER_FILES=stack.h myRecalloc.h
 
 
 # Object file which are obtained by source files compilation

@@ -11,7 +11,7 @@ int main()
     Stack* stack = NULL;
     StackInit(&stack, sizeof(int));
 
-    const size_t elemCount  = 4;
+    const size_t elemCount  = 5;
     stackError_t stackError = OK;
     int          elemBuffer = 0;
 

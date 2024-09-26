@@ -21,7 +21,7 @@ void* MyRecalloc(void* oldData, const size_t oldDataSize,
     else 
     {
         memmove(newData, oldData, oldDataSize);
-        memset(newData + oldDataSize, 0, newDataSize - oldDataSize);
+        memset((char*) newData + oldDataSize, 0, newDataSize - oldDataSize);
     }
 
     free(oldData);
