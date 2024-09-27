@@ -8,6 +8,8 @@
 
 int main() 
 {
+    LOG_OPEN();
+
     Stack* stack = NULL;
     STACK_CREATE(stack, sizeof(int));
 
@@ -35,5 +37,6 @@ int main()
     }
 
     StackDelete(&stack);
+    LOG_CLOSE();
     return 0;
 }

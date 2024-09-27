@@ -25,6 +25,13 @@
     StackCreate(&stack, STACK_INFO_GET(stack), elemSize)   \
 
 
+/**
+ * 
+ */
+#define STACK_DUMP(stack)           \
+    StackDump(stack, GET_PLACE())   \
+
+
 //----------------------------------------------------------------------------------------
 
 
@@ -63,13 +70,13 @@ typedef enum STACK_ERRORS stackError_t;
 /**
  * 
  */
-stackError_t StackCreate(Stack** stack, StackInfo stackInfo, const size_t elemSize);
+stackError_t StackCreate(Stack** stack, StackInfo* stackInfo, const size_t elemSize);
 
 
 /**
  * 
  */
-StackInfo StackInfoGet(const char* stackName, const Place place);
+StackInfo* StackInfoGet(const char* stackName, const Place place);
 
 
 /**
@@ -93,7 +100,7 @@ stackError_t StackPush(Stack* stack, void* elemPtr);
 /**
  * 
  */
-void StackDump(Stack** stack);
+void StackDump(Stack* stack, Place place);
 
 
 //----------------------------------------------------------------------------------------

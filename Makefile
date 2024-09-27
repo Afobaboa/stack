@@ -44,23 +44,47 @@ SOURCES_DIR=sources
 HEADERS_DIR=headers
 OBJECTS_DIR=objects
 
+LOG_SUBDIR=logPrinter
+
 
 # Source files which we use
 SOURCE_FILES=main.cpp stack.cpp myRecalloc.cpp
+LOG_SOURCE_FILES=logPrinter.cpp
 
     
 # Header files which we use
 HEADER_FILES=stack.h myRecalloc.h
+LOG_HEADER_FILES=logPrinter.h
 
 
 # Object file which are obtained by source files compilation
-OBJECT_FILES=$(patsubst %.cpp,%.o,$(SOURCE_FILES))
+OBJECT_FILES=$(patsubst %.cpp,%.o,$(SOURCE_FILES)) $(patsubst %.cpp,%.o,$(LOG_SOURCE_FILES))
 
 
 # List of paths to files with dirictory
 SOURCES=$(patsubst %.cpp,$(SOURCES_DIR)/%.cpp,$(SOURCE_FILES))
+LOG_SOURCES=$(patsubst %.cpp,$(LOG_SUBDIR)/%.cpp,$(LOG_SOURCE_FILES))
+
 HEADERS=$(patsubst %.h,$(HEADERS_DIR)/%.h,$(HEADER_FILES))
+LOG_HEADERS=$(patsubst %.h,$(LOG_SUBDIR)/%.h,$(LOG_HEADER_FILES))
+
 OBJECTS=$(patsubst %.o,$(OBJECTS_DIR)/%.o,$(OBJECT_FILES))
+
+
+#-----------------------------------------------------------------------------------------
+
+
+# Printing lists of files for debugging
+print_sources: 
+	echo $(SOURCES) $(LOG_SOURCES)
+
+
+print_headers: 
+	echo $(HEADERS) $(LOG_HEADERS)
+
+
+print_objects:
+	echo $(OBJECTS)
 
 
 #-----------------------------------------------------------------------------------------
@@ -86,7 +110,10 @@ debug: $(OBJECTS)
 
 
 # Compile object files for dubugging
-$(OBJECTS_DIR)/%.o: $(SOURCES_DIR)/%.cpp $(HEADERS) objects_dir
+$(OBJECTS_DIR)/%.o: $(SOURCES_DIR)/%.cpp $(HEADERS) $(LOG_HEADERS) objects_dir
+	@$(CC) -c $(DEBUG_FLAGS) $< -o $@
+
+$(OBJECTS_DIR)/%.o: $(LOG_SOURCE_FILES)/%.cpp $(HEADERS) $(LOG_HEADERS) objects_dir
 	@$(CC) -c $(DEBUG_FLAGS) $< -o $@
 
 

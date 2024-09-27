@@ -60,11 +60,11 @@ struct StackInfo
  */
 struct Stack 
 {
-    void*     dataBuffer;    /**< Pointer to buffer with stack's data.        */
-    size_t    bufferSize;    /**< Max count of elems which stack can contain. */
-    size_t    elemSize;      /**< Size of each elem in bytes.                 */
-    size_t    elemCount;     /**< Count of elems in stack.                    */
-    StackInfo stackInfo;     /**< Info about first stack definition.          */
+    void*      dataBuffer;    /**< Pointer to buffer with stack's data.        */
+    size_t     bufferSize;    /**< Max count of elems which stack can contain. */
+    size_t     elemSize;      /**< Size of each elem in bytes.                 */
+    size_t     elemCount;     /**< Count of elems in stack.                    */
+    StackInfo* stackInfo;     /**< Info about first stack definition.          */
 };
 
 
@@ -84,6 +84,12 @@ static const size_t MIN_STACK_SIZE = 16;
  * 
  */
 static bool StackIsInit(Stack* stack);
+
+
+/**
+ * 
+ */
+static void StackInfoPrint(StackInfo* stackInfo);
 
 
 /**
@@ -113,44 +119,37 @@ static stackError_t StackCompress(Stack* stack);
 //----------------------------------------------------------------------------------------
 
 
-// stackError_t StackInit(Stack** stack, const size_t elemSize)
-// {
-//     if (StackIsInit(*stack))
-//         return IS_INIT;
-
-//     *stack = (Stack*) calloc(1, sizeof(Stack));
-//     if (stack == NULL)
-//         return ALLOCATE_ERROR;
-    
-//     (*stack)->bufferSize = MIN_STACK_SIZE;
-//     (*stack)->elemCount  = 0;
-//     (*stack)->elemSize   = elemSize;
-//     (*stack)->dataBuffer = calloc(MIN_STACK_SIZE, elemSize);
-
-//     if ((*stack)->dataBuffer == NULL)
-//     {
-//         StackDelete(stack);
-//         return ALLOCATE_ERROR;
-//     }
-
-//     return OK;
-// }
-
-
-stackError_t StackCreate(Stack** stack, StackInfo stackInfo, const size_t elemSize)
+stackError_t StackCreate(Stack** stack, StackInfo* stackInfo, const size_t elemSize)
 {
+    if (StackIsInit(*stack))
+        return IS_INIT;
+
+    *stack = (Stack*) calloc(1, sizeof(Stack));
+    if (stack == NULL)
+        return ALLOCATE_ERROR;
     
+    (*stack)->bufferSize = MIN_STACK_SIZE;
+    (*stack)->elemCount  = 0;
+    (*stack)->elemSize   = elemSize;
+    (*stack)->stackInfo  = stackInfo;
+    (*stack)->dataBuffer = calloc(MIN_STACK_SIZE, elemSize);
+
+    if ((*stack)->dataBuffer == NULL)
+    {
+        StackDelete(stack);
+        return ALLOCATE_ERROR;
+    }
+
+    return OK;
 }
 
 
-
-StackInfo StackInfoGet(const char* stackName, const Place place)
+StackInfo* StackInfoGet(const char* stackName, const Place place)
 {
-    StackInfo stackInfo = 
-    {
-        stackName, 
-        place
-    };
+    StackInfo* stackInfo = (StackInfo*) calloc(1, sizeof(StackInfo));
+
+    stackInfo->name  = stackName;
+    stackInfo->place = place;
 
     return stackInfo;
 }
@@ -162,7 +161,10 @@ stackError_t StackDelete(Stack** stack)
         return NOT_INIT;
     
     free((*stack)->dataBuffer);
+    free((*stack)->stackInfo);
+
     (*stack)->dataBuffer = NULL;
+    (*stack)->stackInfo  = NULL;
     (*stack)->bufferSize = 0;
     (*stack)->elemCount  = 0;
     (*stack)->elemSize   = 0;
@@ -220,6 +222,12 @@ stackError_t StackPush(Stack* stack, void* elemPtr)
     stack->elemCount += 1;
 
     return OK;
+}
+
+
+void StackDump(Stack* stack, Place place) 
+{
+    StackInfoPrint(stack->stackInfo);
 }
 
 
@@ -300,4 +308,12 @@ static stackError_t StackCompress(Stack* stack)
     stack->bufferSize /= 2;
 
     return OK;
+}
+
+
+static void StackInfoPrint(StackInfo* stackInfo)
+{
+    LOG_DUMMY_PRINT("Stack %s was created in %s: %s(): line %d\n",
+                    stackInfo->name,           stackInfo->place.file, 
+                    stackInfo->place.function, stackInfo->place.line);
 }
