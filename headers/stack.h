@@ -11,13 +11,33 @@
 //----------------------------------------------------------------------------------------
 
 
-#define LOG_INIT
+/**
+ * 
+ */
+#define STACK_INFO_GET(stack)                   \
+    StackInfoGet(GET_NAME(stack), GET_PLACE())  \
+
+
+/**
+ * 
+ */
+#define STACK_CREATE(stack, elemSize)                      \
+    StackCreate(&stack, STACK_INFO_GET(stack), elemSize)   \
+
+
+//----------------------------------------------------------------------------------------
 
 
 /**
  * 
  */
 struct Stack;
+
+
+/**
+ * 
+ */
+struct StackInfo;
 
 
 //----------------------------------------------------------------------------------------
@@ -43,7 +63,13 @@ typedef enum STACK_ERRORS stackError_t;
 /**
  * 
  */
-stackError_t StackInit(Stack** stack, const size_t elemSize); // FIXME: StackCreate
+stackError_t StackCreate(Stack** stack, StackInfo stackInfo, const size_t elemSize);
+
+
+/**
+ * 
+ */
+StackInfo StackInfoGet(const char* stackName, const Place place);
 
 
 /**

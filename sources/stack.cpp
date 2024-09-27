@@ -48,12 +48,23 @@
 /**
  * 
  */
+struct StackInfo
+{
+    const char* name;   /**<  */
+    const Place place;  /**<  */
+};
+
+
+/**
+ * 
+ */
 struct Stack 
 {
-    void*  dataBuffer;    /**< Pointer to buffer with stack's data.        */
-    size_t bufferSize;    /**< Max count of elems which stack can contain. */
-    size_t elemSize;      /**< Size of each elem in bytes.                 */
-    size_t elemCount;     /**< Count of elems in stack.                    */
+    void*     dataBuffer;    /**< Pointer to buffer with stack's data.        */
+    size_t    bufferSize;    /**< Max count of elems which stack can contain. */
+    size_t    elemSize;      /**< Size of each elem in bytes.                 */
+    size_t    elemCount;     /**< Count of elems in stack.                    */
+    StackInfo stackInfo;     /**< Info about first stack definition.          */
 };
 
 
@@ -76,7 +87,7 @@ static bool StackIsInit(Stack* stack);
 
 
 /**
- * 
+ *
  */
 static bool StackIsExpandNeed(Stack* stack);
 
@@ -102,27 +113,46 @@ static stackError_t StackCompress(Stack* stack);
 //----------------------------------------------------------------------------------------
 
 
-stackError_t StackInit(Stack** stack, const size_t elemSize)
-{
-    if (StackIsInit(*stack))
-        return IS_INIT;
+// stackError_t StackInit(Stack** stack, const size_t elemSize)
+// {
+//     if (StackIsInit(*stack))
+//         return IS_INIT;
 
-    *stack = (Stack*) calloc(1, sizeof(Stack));
-    if (stack == NULL)
-        return ALLOCATE_ERROR;
+//     *stack = (Stack*) calloc(1, sizeof(Stack));
+//     if (stack == NULL)
+//         return ALLOCATE_ERROR;
     
-    (*stack)->bufferSize = MIN_STACK_SIZE;
-    (*stack)->elemCount  = 0;
-    (*stack)->elemSize   = elemSize;
-    (*stack)->dataBuffer = calloc(MIN_STACK_SIZE, elemSize);
+//     (*stack)->bufferSize = MIN_STACK_SIZE;
+//     (*stack)->elemCount  = 0;
+//     (*stack)->elemSize   = elemSize;
+//     (*stack)->dataBuffer = calloc(MIN_STACK_SIZE, elemSize);
 
-    if ((*stack)->dataBuffer == NULL)
+//     if ((*stack)->dataBuffer == NULL)
+//     {
+//         StackDelete(stack);
+//         return ALLOCATE_ERROR;
+//     }
+
+//     return OK;
+// }
+
+
+stackError_t StackCreate(Stack** stack, StackInfo stackInfo, const size_t elemSize)
+{
+    
+}
+
+
+
+StackInfo StackInfoGet(const char* stackName, const Place place)
+{
+    StackInfo stackInfo = 
     {
-        StackDelete(stack);
-        return ALLOCATE_ERROR;
-    }
+        stackName, 
+        place
+    };
 
-    return OK;
+    return stackInfo;
 }
 
 

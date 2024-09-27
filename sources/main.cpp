@@ -9,7 +9,7 @@
 int main() 
 {
     Stack* stack = NULL;
-    StackInit(&stack, sizeof(int));
+    STACK_CREATE(stack, sizeof(int));
 
     const size_t elemCount  = 5;
     stackError_t stackError = OK;
