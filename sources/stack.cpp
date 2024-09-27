@@ -93,6 +93,12 @@ static void StackInfoPrint(StackInfo* stackInfo);
 
 
 /**
+ * 
+ */
+static void StackPrintContent(Stack* stack);
+
+
+/**
  *
  */
 static bool StackIsExpandNeed(Stack* stack);
@@ -230,7 +236,9 @@ stackError_t StackPush(Stack* stack, void* elemPtr)
 
 void StackDump(Stack* stack, Place place) 
 {
+    LogPrint(INFO, place, "Stack's dumping...");
     StackInfoPrint(stack->stackInfo);
+    // StackPrintContent(stack);
 }
 
 
@@ -319,4 +327,13 @@ static void StackInfoPrint(StackInfo* stackInfo)
     LOG_DUMMY_PRINT("Stack %s was created in %s: %s(): line %d\n",
                     stackInfo->name,           stackInfo->place.file, 
                     stackInfo->place.function, stackInfo->place.line);
+}
+
+
+static void StackPrintContent(Stack* stack)
+{
+    for (size_t elemNum = 0; elemNum < stack->elemCount; elemNum++)
+    {
+
+    }
 }
