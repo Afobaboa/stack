@@ -63,7 +63,7 @@ struct Stack
 /**
  * Minimum stack's bufferSize.
  */
-static const size_t MIN_STACK_SIZE = 1;
+static const size_t MIN_STACK_SIZE = 16;
 
 
 //----------------------------------------------------------------------------------------
