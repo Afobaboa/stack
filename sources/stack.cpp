@@ -51,7 +51,7 @@
 struct StackInfo
 {
     const char* name;   /**<  */
-    Place place;        /**<  */
+    Place       place;  /**<  */
 };
 
 
@@ -148,8 +148,11 @@ StackInfo* StackInfoGet(const char* stackName, const Place place)
 {
     StackInfo* stackInfo = (StackInfo*) calloc(1, sizeof(StackInfo));
 
-    stackInfo->name = stackName;
-    memmove(&(stackInfo->place), &place, sizeof(place));
+    stackInfo->name           = stackName;
+    
+    stackInfo->place.file     = place.file;
+    stackInfo->place.function = place.function;
+    stackInfo->place.line     = place.line;
 
     return stackInfo;
 }
