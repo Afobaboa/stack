@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../headers/stack.h"
 #include "../headers/myRecalloc.h"
@@ -122,6 +123,18 @@ static stackError_t StackExpand(Stack* stack);
 static stackError_t StackCompress(Stack* stack);
 
 
+/**
+ * 
+ */
+static void StackPrintELem(Stack* stack, const size_t elenNum);
+
+
+/**
+ * 
+ */
+static void StackPrintFields(Stack* stack);
+
+
 //----------------------------------------------------------------------------------------
 
 
@@ -154,11 +167,8 @@ StackInfo* StackInfoGet(const char* stackName, const Place place)
 {
     StackInfo* stackInfo = (StackInfo*) calloc(1, sizeof(StackInfo));
 
-    stackInfo->name           = stackName;
-
-    stackInfo->place.file     = place.file;
-    stackInfo->place.function = place.function;
-    stackInfo->place.line     = place.line;
+    stackInfo->name  = stackName;
+    stackInfo->place = place;  
 
     return stackInfo;
 }
@@ -236,9 +246,10 @@ stackError_t StackPush(Stack* stack, void* elemPtr)
 
 void StackDump(Stack* stack, Place place) 
 {
-    LogPrint(INFO, place, "Stack's dumping...");
-    StackInfoPrint(stack->stackInfo);
-    // StackPrintContent(stack);
+    LogPrint(INFO, place, "Stack's dumping...\n");
+
+    StackPrintFields(stack);
+    StackPrintContent(stack);
 }
 
 
@@ -324,7 +335,7 @@ static stackError_t StackCompress(Stack* stack)
 
 static void StackInfoPrint(StackInfo* stackInfo)
 {
-    LOG_DUMMY_PRINT("Stack %s was created in %s: %s(): line %d\n",
+    LOG_DUMMY_PRINT("\tStack %s was created in %s: %s(): line %d\n\n",
                     stackInfo->name,           stackInfo->place.file, 
                     stackInfo->place.function, stackInfo->place.line);
 }
@@ -334,6 +345,36 @@ static void StackPrintContent(Stack* stack)
 {
     for (size_t elemNum = 0; elemNum < stack->elemCount; elemNum++)
     {
-
+        LOG_DUMMY_PRINT("\t[%zu] = ", elemNum);
+        StackPrintELem(stack, elemNum);
+        LOG_DUMMY_PRINT("\n");
     }
+    LOG_DUMMY_PRINT("\n");
+}
+
+
+static void StackPrintELem(Stack* stack, const size_t elemNum)
+{
+    const size_t elemSize  = stack->elemSize;
+    const char* elemPtr = (char*) stack->dataBuffer + elemNum * elemSize;
+
+    for (size_t byteNum = 0; byteNum < elemSize; byteNum++)
+    {
+        LOG_DUMMY_PRINT("%hu", (unsigned short) *(elemPtr + byteNum));
+    }
+}
+
+
+static void StackPrintFields(Stack* stack)
+{
+    StackInfoPrint(stack->stackInfo);
+
+    LOG_DUMMY_PRINT("\tdataBuffer = %p \n"
+                    "\tbufferSize = %zu \n"
+                    "\telemSize = %zu \n"
+                    "\telemCount = %zu \n\n",
+                    stack->dataBuffer, 
+                    stack->bufferSize,
+                    stack->elemSize,
+                    stack->elemCount);
 }

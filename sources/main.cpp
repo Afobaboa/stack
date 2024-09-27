@@ -13,6 +13,8 @@ int main()
     Stack* stack = NULL;
     STACK_CREATE(stack, sizeof(int));
 
+    STACK_DUMP(stack);
+
     const size_t elemCount  = 5;
     stackError_t stackError = OK;
     int          elemBuffer = 0;
@@ -26,6 +28,8 @@ int main()
         if (stackError != OK)
             return 1;
     }
+
+    STACK_DUMP(stack);
 
     for (size_t elemNum = 0; elemNum < elemCount; elemNum++)
     {
