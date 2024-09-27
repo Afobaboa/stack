@@ -95,7 +95,7 @@ all: release
 
 
 # Run program
-run: $(EXECUTABLE) logs
+run: $(EXECUTABLE)
 	@./$<
 
 
@@ -113,7 +113,7 @@ debug: $(OBJECTS)
 $(OBJECTS_DIR)/%.o: $(SOURCES_DIR)/%.cpp $(HEADERS) $(LOG_HEADERS) objects_dir
 	@$(CC) -c $(DEBUG_FLAGS) $< -o $@
 
-$(OBJECTS_DIR)/%.o: $(LOG_SOURCE_FILES)/%.cpp $(HEADERS) $(LOG_HEADERS) objects_dir
+$(OBJECTS_DIR)/%.o: $(LOG_SUBDIR)/%.cpp $(HEADERS) $(LOG_HEADERS) objects_dir
 	@$(CC) -c $(DEBUG_FLAGS) $< -o $@
 
 

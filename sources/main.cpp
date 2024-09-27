@@ -36,6 +36,7 @@ int main()
         printf("%zu elem value is %d\n", elemNum, elemBuffer);
     }
 
+    STACK_DUMP(stack);
     StackDelete(&stack);
     LOG_CLOSE();
     return 0;
