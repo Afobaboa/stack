@@ -13,27 +13,44 @@
 
 #ifndef DEBUG_SWITCH_OFF
 
+
 /**
  * 
  */
 #define STACK_INFO_GET(stack)                   \
-    StackInfoGet(GET_NAME(stack), GET_PLACE())  \
-
-
-/**
- * 
- */
-#define STACK_CREATE(stack, elemSize)                      \
-    StackCreate(&stack, STACK_INFO_GET(stack), elemSize)   \
+    StackInfoGet(GET_NAME(stack), GET_PLACE())  
 
 
 /**
  * 
  */
 #define STACK_DUMP(stack)           \
-    StackDump(stack, GET_PLACE())   \
+    StackDump(stack, GET_PLACE())   
+
+
+#else
+
+
+/**
+ * 
+ */
+#define STACK_INFO_GET(stack) 
+#define STACK_DUMP(stack) 
+
 
 #endif // DEBUG_SWITCH_OFF
+
+
+//----------------------------------------------------------------------------------------
+
+
+/**
+ * 
+ */
+#define STACK_CREATE(stack, elemSize)                      \
+    StackCreate(&stack, STACK_INFO_GET(stack), elemSize)   
+
+
 
 //----------------------------------------------------------------------------------------
 
