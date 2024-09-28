@@ -65,7 +65,8 @@ struct Stack
     size_t     bufferSize;    /**< Max count of elems which stack can contain. */
     size_t     elemSize;      /**< Size of each elem in bytes.                 */
     size_t     elemCount;     /**< Count of elems in stack.                    */
-    StackInfo* stackInfo;     /**< Info about first stack definition.          */
+
+    ON_DEBUG(StackInfo* stackInfo;)     /**< Info about first stack definition.*/
 };
 
 
@@ -140,13 +141,14 @@ static void StackPrintFields(Stack* stack);
 
 stackError_t StackCreate(Stack** stack, StackInfo* stackInfo, const size_t elemSize)
 {
+    if (stack == NULL)
+        return NULL_STACK_PTR;
+
     if (StackIsInit(*stack))
         return IS_INIT;
 
     *stack = (Stack*) calloc(1, sizeof(Stack));
-    if (stack == NULL)
-        return ALLOCATE_ERROR;
-    
+    // TODO: Add check
     (*stack)->bufferSize = MIN_STACK_SIZE;
     (*stack)->elemCount  = 0;
     (*stack)->elemSize   = elemSize;
@@ -176,6 +178,9 @@ StackInfo* StackInfoGet(const char* stackName, const Place place)
 
 stackError_t StackDelete(Stack** stack)
 {
+    if (stack == NULL)
+        return NULL_STACK_PTR;
+
     if (!StackIsInit(*stack))
         return NOT_INIT;
     
@@ -201,6 +206,8 @@ stackError_t StackPop(Stack* stack, void* elemBufferPtr)
         return UNDERFLOW;
     
     STACK_TRY_COMPRESS(stack);
+    // TODO: fuck macros!!!
+
     // printf("bufferSize = %zu\n", stack->bufferSize);
 
     // printf("dataBuffer = %p\n", stack->dataBuffer);
@@ -301,7 +308,7 @@ static stackError_t StackExpand(Stack* stack)
                          // FIXME: add MyRecalloc()
     // void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferSize * 2 * stack->elemSize); 
     void* newDataBuffer = MyRecalloc(stack->dataBuffer, stack->bufferSize, 
-                                    stack->bufferSize * 2, stack->elemSize);
+                                     stack->bufferSize * 2, stack->elemSize);
     if (newDataBuffer == NULL)
         return ALLOCATE_ERROR;
 

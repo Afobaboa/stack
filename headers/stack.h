@@ -5,11 +5,13 @@
 //----------------------------------------------------------------------------------------
 
 
+#include "../headers/stackConfigs.h"
 #include "../logPrinter/logPrinter.h"
 
 
 //----------------------------------------------------------------------------------------
 
+#ifndef DEBUG_SWITCH_OFF
 
 /**
  * 
@@ -31,6 +33,7 @@
 #define STACK_DUMP(stack)           \
     StackDump(stack, GET_PLACE())   \
 
+#endif // DEBUG_SWITCH_OFF
 
 //----------------------------------------------------------------------------------------
 
@@ -44,7 +47,7 @@ struct Stack;
 /**
  * 
  */
-struct StackInfo;
+ON_DEBUG(struct StackInfo;)
 
 
 //----------------------------------------------------------------------------------------
@@ -59,7 +62,8 @@ enum STACK_ERRORS
     IS_INIT,        /**<  */
     NOT_INIT,       /**<  */
     ALLOCATE_ERROR, /**<  */
-    UNDERFLOW       /**<  */
+    UNDERFLOW,      /**<  */
+    NULL_STACK_PTR  /**<  */
 };
 typedef enum STACK_ERRORS stackError_t;
 
@@ -76,7 +80,7 @@ stackError_t StackCreate(Stack** stack, StackInfo* stackInfo, const size_t elemS
 /**
  * 
  */
-StackInfo* StackInfoGet(const char* stackName, const Place place);
+ON_DEBUG(StackInfo* StackInfoGet(const char* stackName, const Place place);)
 
 
 /**
@@ -100,7 +104,7 @@ stackError_t StackPush(Stack* stack, void* elemPtr);
 /**
  * 
  */
-void StackDump(Stack* stack, Place place);
+ON_DEBUG(void StackDump(Stack* stack, Place place);)
 
 
 //----------------------------------------------------------------------------------------

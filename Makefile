@@ -25,7 +25,7 @@ DEBUG_FLAGS=-D _DEBUG -ggdb3 -std=c++17 -O0 -Wall $\
 bounds,enum,float-cast-overflow,float-divide-by-zero,$\
 integer-divide-by-zero,leak,nonnull-attribute,null,object-size,$\
 return,returns-nonnull-attribute,shift,signed-integer-overflow,$\
-undefined,unreachable,vla-bound,vptr
+undefined,unreachable,vla-bound,vptr # -DLOG_SWITCH_OFF
 
 
 # Flags for release version compilation
