@@ -15,7 +15,7 @@ int main()
 
     STACK_DUMP(stack);
 
-    const size_t elemCount  = 5;
+    const size_t elemCount  = 110;
     stackError_t stackError = OK;
     int          elemBuffer = 0;
 
