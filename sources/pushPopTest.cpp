@@ -11,7 +11,7 @@
 /**
  * 
  */
-static const size_t stackSize           = 10;
+static const size_t stackSize            = 10;
 static long long    stackTest[stackSize] = {};
 
 
@@ -21,19 +21,19 @@ static long long    stackTest[stackSize] = {};
 /**
  * 
  */
-static void StackContentCreate();
+static bool StackContentCreate();
 
 
 /**
  * 
  */
-static void DoStackPush();
+static bool DoStackPush();
 
 
 /**
  * 
  */
-static void DoStackPop();
+static bool DoStackPop();
 
 
 //----------------------------------------------------------------------------------------
@@ -41,11 +41,14 @@ static void DoStackPop();
 
 int main() 
 {
-    StackContentCreate();
-    DoStackPush();
-    DoStackPop();
-
-    ColoredPrintf(GREEN, "Test's complete.\n");
+    if (StackContentCreate() &&
+        DoStackPush()        &&
+        DoStackPop())
+    {
+        ColoredPrintf(GREEN, "Test's complete.\n");
+    }
+    else    
+        ColoredPrintf(RED, "Test's not complete.\n");
 
     return 0;
 }
@@ -54,19 +57,25 @@ int main()
 //----------------------------------------------------------------------------------------
 
 
-static void StackContentCreate()
+static bool StackContentCreate()
 {
 
+
+    return true;
 }
 
 
-static void DoStackPush()
+static bool DoStackPush()
 {
 
+
+    return true;
 }
 
 
-static void DoStackPop()
+static bool DoStackPop()
 {
 
+
+    return false;
 }
