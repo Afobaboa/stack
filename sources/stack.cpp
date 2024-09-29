@@ -92,12 +92,6 @@ static stackError_t StackCompress(Stack* stack);
 /**
  * 
  */
-static void StackPrintELem(Stack* stack, const size_t elenNum);
-
-
-/**
- * 
- */
 static void StackPrintFields(Stack* stack);
 
 
@@ -234,6 +228,7 @@ stackError_t StackPush(Stack* stack, void* elemPtr)
 }
 
 
+// ON_DEBUG
 void StackDump(Stack* stack, Place place) 
 {
     LogPrint(INFO, place, "Stack's dumping...\n");
@@ -359,29 +354,22 @@ static void StackInfoPrint(StackInfo* stackInfo)
 
 static void StackPrintContent(Stack* stack)
 {
-    char* format = GetArrayPrintingFormat(stack->elemCount);
+    const size_t elemCount  = stack->elemCount;
+    const size_t elemSize   = stack->elemSize;
+    char*        dataBuffer = (char*) (stack->dataBuffer);
+    char*        format     = GetArrayPrintingFormat(stack->elemCount);
 
-    for (size_t elemNum = 0; elemNum < stack->elemCount; elemNum++)
+    for (size_t elemNum = 0; elemNum < elemCount; elemNum++)
     {
         LOG_DUMMY_PRINT(format, elemNum);
-        StackPrintELem(stack, elemNum);
+        LogPrintELem(dataBuffer, elemSize);
         LOG_DUMMY_PRINT("\n");
+
+        dataBuffer += elemSize;
     }
     LOG_DUMMY_PRINT("\n");
 
     free(format);
-}
-
-
-static void StackPrintELem(Stack* stack, const size_t elemNum)
-{
-    const size_t elemSize  = stack->elemSize;
-    const char* elemPtr = (char*) stack->dataBuffer + elemNum * elemSize;
-
-    for (size_t byteNum = 0; byteNum < elemSize; byteNum++)
-    {
-        LOG_DUMMY_PRINT("%02X", (unsigned char) *(elemPtr + byteNum));
-    }
 }
 
 

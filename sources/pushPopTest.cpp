@@ -27,14 +27,14 @@ struct StackPushPopTest
 /**
  * 
  */
-static bool StackContentCreate(StackPushPopTest* stackTest, const size_t elemCount,
+static bool StackPushPopTestCreate(StackPushPopTest* stackTest, const size_t elemCount,
                                                             const size_t elemSize);
 
 
 /**
  * 
  */
-static bool StackContentDelete(StackPushPopTest* stackTest);
+static bool StackPushPopTestDelete(StackPushPopTest* stackTest);
 
 
 /**
@@ -66,10 +66,11 @@ static bool AreElemsEqual(void* firstElemPtr, void* secondElemPtr, const size_t 
 
 int main() 
 {
+    LOG_OPEN();
     StackPushPopTest stackTest = {};
 
-    if (StackContentCreate(&stackTest, 10, 8) &&
-        DoStackPush(&stackTest)               &&
+    if (StackPushPopTestCreate(&stackTest, 10, 8) &&
+        DoStackPush(&stackTest)                   &&
         DoStackPop(&stackTest))
     {
         ColoredPrintf(GREEN, "%s is complete.\n", __FILE__);
@@ -77,6 +78,10 @@ int main()
     else    
         ColoredPrintf(RED, "%s isn't complete.\n", __FILE__);
 
+    StackPushPopTestPrint(&stackTest);
+    StackPushPopTestDelete(&stackTest);
+
+    LOG_CLOSE();
     return 0;
 }
 
@@ -84,9 +89,11 @@ int main()
 //----------------------------------------------------------------------------------------
 
 
-static bool StackContentCreate(StackPushPopTest* stackTest, const size_t elemCount,
-                                                            const size_t elemSize)
+static bool StackPushPopTestCreate(StackPushPopTest* stackTest, const size_t elemCount,
+                                                                const size_t elemSize)
 {
+    // LOG_PRINT(INFO, "elemCount = %zu, elemSize = %zu.", elemCount, elemSize);
+
     stackTest->elemCount = elemCount;
     stackTest->elemSize  = elemSize;
 
@@ -104,7 +111,7 @@ static bool StackContentCreate(StackPushPopTest* stackTest, const size_t elemCou
     {
         for (size_t byteNum = 0; byteNum < elemSize; byteNum++)
         {
-            *stackDataCopy = (char) (rand() % UCHAR_MAX);
+            *stackDataCopy = (unsigned char) (rand() % UCHAR_MAX);
             stackDataCopy++;
         }
     }
@@ -140,6 +147,8 @@ static bool DoStackPush(StackPushPopTest* stackTest)
         stackDataCopy += elemSize;
     }
 
+    StackPushPopTestPrint(stackTest);
+    STACK_DUMP(stackTest->stack);
     return true;
 }
 
@@ -149,7 +158,7 @@ static bool DoStackPop(StackPushPopTest* stackTest)
     size_t elemSize         =         stackTest->elemSize;
     size_t elemCountReduced =         stackTest->elemCount - 1;
     char*  stackDataEndCopy = (char*) stackTest->stackData + 
-                                                        elemCountReduced * elemSize + 1; 
+                                                        elemCountReduced * elemSize; 
     Stack* stack            =         stackTest->stack;
 
     void* elemBuffer = NULL;
@@ -157,22 +166,41 @@ static bool DoStackPop(StackPushPopTest* stackTest)
     if (elemBuffer == NULL)
     {
         LOG_PRINT(ERROR, "elemBuffer can't be allocated, elemSize = %zu.", elemSize);
-        return false;
+        return false;   
     }
-
-    for (size_t elemNum = elemCountReduced; elemNum >= 0; elemNum++)
+                                            // for safe underflowing
+    for (size_t elemNum = elemCountReduced; elemNum != __SIZE_MAX__; elemNum--)
     {
+        // LOG_PRINT(INFO, "Elem [%zu] is popping.", elemNum);
+        // STACK_DUMP(stackTest->stack);
+
         stackError_t stackError = StackPop(stack, elemBuffer);
         if (stackError != OK)
         {
             LOG_PRINT(ERROR, "Elem [%zu] can't be popped, stack error code = %s.",
-                                                        GetStackErrorCode(stackError));
+                                                  elemNum, GetStackErrorCode(stackError));
+            free(elemBuffer);
             return false;
         }
 
+        if (!AreElemsEqual(stackDataEndCopy, elemBuffer, elemSize))
+        {
+            LOG_PRINT(ERROR, "Elem [%zu] isn't popped correct: ", elemNum);
 
+            LOG_DUMMY_PRINT("\t stackDataEndCopy[%zu] = 0x", elemNum);
+            LogPrintELem(stackDataEndCopy, elemSize);
+            
+            LOG_DUMMY_PRINT("\n\t *elemBuffer = 0x");
+            LogPrintELem(elemBuffer, elemSize);
+
+            free(elemBuffer);
+            return false;
+        }
+
+        stackDataEndCopy -= elemSize;
     }
 
+    free(elemBuffer);
     return true;
 }
 
@@ -185,7 +213,7 @@ static bool StackPushPopTestPrint(StackPushPopTest* stackTest)
 }
 
 
-static bool StackContentDelete(StackPushPopTest* stackTest)
+static bool StackPushPopTestDelete(StackPushPopTest* stackTest)
 {
     if (stackTest == NULL)
     {
