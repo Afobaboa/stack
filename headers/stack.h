@@ -124,6 +124,12 @@ stackError_t StackPush(Stack* stack, void* elemPtr);
 ON_DEBUG(void StackDump(Stack* stack, Place place);)
 
 
+/**
+ * 
+ */
+const char* GetStackErrorCode(const stackError_t stackError);
+
+
 //----------------------------------------------------------------------------------------
 
 

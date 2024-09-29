@@ -243,6 +243,34 @@ void StackDump(Stack* stack, Place place)
 }
 
 
+const char* GetStackErrorCode(const stackError_t stackError)
+{
+    switch (stackError)
+    {
+    case OK: 
+        return "OK";
+
+    case IS_INIT:
+        return "IS_INIT";
+
+    case NOT_INIT:
+        return "NOT_INIT";
+
+    case ALLOCATE_ERROR:
+        return "ALLOCATE_ERROR";
+
+    case UNDERFLOW:
+        return "UNDERFLOW";
+        
+    case NULL_STACK_PTR:
+        return "NULL_STACK_PTR";
+    
+    default:
+        return "WRONG_STACK_ERROR_CODE";
+    }
+}
+
+
 //----------------------------------------------------------------------------------------
 
 
