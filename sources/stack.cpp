@@ -6,7 +6,6 @@
 #include <unistd.h>
 
 #include "../headers/stack.h"
-#include "../headers/stackConfigs.h"
 #include "../headers/myRecalloc.h"
 
 
@@ -354,7 +353,7 @@ static void StackPrintContent(Stack* stack)
         LOG_DUMMY_PRINT("\n");
     }
     LOG_DUMMY_PRINT("\n");
-    
+
     free(format);
 }
 

@@ -58,7 +58,8 @@ LOG_HEADER_FILES=logPrinter.h
 
 
 # Object file which are obtained by source files compilation
-OBJECT_FILES=$(patsubst %.cpp,%.o,$(SOURCE_FILES)) $(patsubst %.cpp,%.o,$(LOG_SOURCE_FILES))
+OBJECT_FILES=$(patsubst %.cpp,%.o,$(SOURCE_FILES)) 
+LOG_OBJECT_FILES=$(patsubst %.cpp,%.o,$(LOG_SOURCE_FILES))
 
 
 # List of paths to files with dirictory
@@ -69,6 +70,7 @@ HEADERS=$(patsubst %.h,$(HEADERS_DIR)/%.h,$(HEADER_FILES))
 LOG_HEADERS=$(patsubst %.h,$(LOG_SUBDIR)/%.h,$(LOG_HEADER_FILES))
 
 OBJECTS=$(patsubst %.o,$(OBJECTS_DIR)/%.o,$(OBJECT_FILES))
+LOG_OBJECTS=$(patsubst %.o,$(OBJECTS_DIR)/%.o,$(LOG_OBJECT_FILES))
 
 
 #-----------------------------------------------------------------------------------------
@@ -105,8 +107,8 @@ release: objects_dir clean
 
 
 # Make debug version
-debug: $(OBJECTS)
-	@$(CC) $(DEBUG_FLAGS) $(OBJECTS) -o $(EXECUTABLE)
+debug: $(OBJECTS) $(LOG_OBJECTS)
+	@$(CC) $(DEBUG_FLAGS) $(OBJECTS) $(LOG_OBJECTS) -o $(EXECUTABLE)
 
 
 # Compile object files for dubugging
@@ -133,3 +135,23 @@ log_clean:
 # Clean objects dir
 clean:
 	@rm -f $(OBJECTS) $(EXECUTABLE)
+
+
+#----------------------------------------------------------------------------------------
+
+
+PUSH_POP_TEST_NAME=pushPopTest
+
+PUSH_POP_TEST_SOURCE_FILES=pushPopTest.cpp stack.cpp myRecalloc.cpp
+PUSH_POP_TEST_SOURCES=$(patsubst %.cpp,$(SOURCES_DIR)/%.cpp,$(PUSH_POP_TEST_SOURCE_FILES))
+PUSH_POP_TEST_OBJECTS=$(patsubst %.cpp,$(OBJECTS_DIR)/%.o,$(PUSH_POP_TEST_SOURCE_FILES))
+
+
+# Test for StackPush() and StackPop()
+$(PUSH_POP_TEST_NAME): $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS)
+	@$(CC) $(DEBUG_FLAGS) $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS) -o $(PUSH_POP_TEST_NAME)
+
+
+# Run test for StackPush() and StacPop()
+$(PUSH_POP_TEST_NAME)_run: $(PUSH_POP_TEST_NAME)
+	@./$<
