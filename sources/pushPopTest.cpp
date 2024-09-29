@@ -11,8 +11,13 @@
 /**
  * 
  */
-static const size_t stackSize            = 10;
-static long long    stackTest[stackSize] = {};
+struct StackTest
+{
+    const size_t capacity;    /**<  */
+    const size_t elemSize;    /**<  */
+    void*        stackData;   /**<  */
+    Stack*       stack;       /**<  */
+};
 
 
 //----------------------------------------------------------------------------------------
@@ -21,19 +26,25 @@ static long long    stackTest[stackSize] = {};
 /**
  * 
  */
-static bool StackContentCreate();
+static bool StackContentCreate(StackTest* stackTest);
 
 
 /**
  * 
  */
-static bool DoStackPush();
+static bool DoStackPush(StackTest* stackTest);
 
 
 /**
  * 
  */
-static bool DoStackPop();
+static bool DoStackPop(StackTest* stackTest);
+
+
+/**
+ * 
+ */
+static bool StackTestPrint(StackTest* stackTest);
 
 
 //----------------------------------------------------------------------------------------
@@ -41,14 +52,19 @@ static bool DoStackPop();
 
 int main() 
 {
-    if (StackContentCreate() &&
-        DoStackPush()        &&
-        DoStackPop())
+    StackTest stackTest = {.capacity  = 10,
+                           .elemSize  = 8,
+                           .stackData = NULL,
+                           .stack     = NULL};
+
+    if (StackContentCreate(&stackTest) &&
+        DoStackPush(&stackTest)        &&
+        DoStackPop(&stackTest))
     {
-        ColoredPrintf(GREEN, "Test's complete.\n");
+        ColoredPrintf(GREEN, "%s is complete.\n", __FILE__);
     }
     else    
-        ColoredPrintf(RED, "Test's not complete.\n");
+        ColoredPrintf(RED, "%s isn't complete.\n", __FILE__);
 
     return 0;
 }
@@ -57,7 +73,17 @@ int main()
 //----------------------------------------------------------------------------------------
 
 
-static bool StackContentCreate()
+static bool StackContentCreate(StackTest* stackTest)
+{
+    srand((unsigned int) time(NULL));
+
+    
+
+    return true;
+}
+
+
+static bool DoStackPush(StackTest* stackTest)
 {
 
 
@@ -65,7 +91,7 @@ static bool StackContentCreate()
 }
 
 
-static bool DoStackPush()
+static bool DoStackPop(StackTest* stackTest)
 {
 
 
@@ -73,9 +99,9 @@ static bool DoStackPush()
 }
 
 
-static bool DoStackPop()
+static bool StackTestPrint(StackTest* stackTest)
 {
 
 
-    return false;
+    return true;
 }

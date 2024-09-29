@@ -2,7 +2,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 #include <unistd.h>
 
 #include "../headers/stack.h"
@@ -100,18 +99,6 @@ static void StackPrintELem(Stack* stack, const size_t elenNum);
  * 
  */
 static void StackPrintFields(Stack* stack);
-
-
-/**
- * 
- */
-static size_t GetDigitsCount(size_t number);
-
-
-/**
- * 
- */
-static char* SetFormat(const size_t maxSize);
 
 
 //----------------------------------------------------------------------------------------
@@ -344,7 +331,7 @@ static void StackInfoPrint(StackInfo* stackInfo)
 
 static void StackPrintContent(Stack* stack)
 {
-    char* format = SetFormat(stack->elemCount);
+    char* format = GetArrayPrintingFormat(stack->elemCount);
 
     for (size_t elemNum = 0; elemNum < stack->elemCount; elemNum++)
     {
@@ -382,31 +369,4 @@ static void StackPrintFields(Stack* stack)
                     stack->bufferCapacity,
                     stack->elemSize,
                     stack->elemCount);
-}
-
-
-static size_t GetDigitsCount(size_t number)
-{
-    size_t count = 0;
-    while (number > 0) 
-    {
-        number /= 10;
-        count++;
-    }
-
-    return count;
-}
-
-
-static char* SetFormat(const size_t maxSize)
-{
-    const size_t maxFormatLength   = 1 + strlen("\t[%zu] = 0x") + 
-                                                GetDigitsCount(GetDigitsCount(ULONG_MAX));
-    const size_t maxSizeDigisCount = GetDigitsCount(maxSize);
-    char*        format            = (char*) calloc(maxFormatLength, sizeof(char));
-
-    if (sprintf(format, "\t[%%%zuzu] = 0x", maxSizeDigisCount) < 0)
-        LOG_PRINT(ERROR, "Can't set format.");
-
-    return format;
 }
