@@ -52,7 +52,7 @@ static bool DoStackPop(StackPushPopTest* stackTest);
 /**
  * 
  */
-static bool StackPushPopTestPrint(StackPushPopTest* stackTest);
+static void StackPushPopTestPrint(StackPushPopTest* stackTest);
 
 
 /**
@@ -69,8 +69,8 @@ int main()
     LOG_OPEN();
     StackPushPopTest stackTest = {};
 
-    if (StackPushPopTestCreate(&stackTest, 10, 8) &&
-        DoStackPush(&stackTest)                   &&
+    if (StackPushPopTestCreate(&stackTest, 20000, 50) &&
+        DoStackPush(&stackTest) &&
         DoStackPop(&stackTest))
     {
         ColoredPrintf(GREEN, "%s is complete.\n", __FILE__);
@@ -78,9 +78,7 @@ int main()
     else    
         ColoredPrintf(RED, "%s isn't complete.\n", __FILE__);
 
-    StackPushPopTestPrint(&stackTest);
     StackPushPopTestDelete(&stackTest);
-
     LOG_CLOSE();
     return 0;
 }
@@ -189,9 +187,13 @@ static bool DoStackPop(StackPushPopTest* stackTest)
 
             LOG_DUMMY_PRINT("\t stackDataEndCopy[%zu] = 0x", elemNum);
             LogPrintELem(stackDataEndCopy, elemSize);
+            LOG_DUMMY_PRINT("\n");
             
             LOG_DUMMY_PRINT("\n\t *elemBuffer = 0x");
             LogPrintELem(elemBuffer, elemSize);
+            LOG_DUMMY_PRINT("\n");
+
+            STACK_DUMP(stackTest->stack);
 
             free(elemBuffer);
             return false;
@@ -205,11 +207,27 @@ static bool DoStackPop(StackPushPopTest* stackTest)
 }
 
 
-static bool StackPushPopTestPrint(StackPushPopTest* stackTest)
+static void StackPushPopTestPrint(StackPushPopTest* stackTest)
 {
+    LOG_PRINT(INFO, "Stack test printing...");
+    LOG_DUMMY_PRINT("\telemCount = %zu\n"
+                    "\telemSize = %zu\n\n", 
+                    stackTest->elemCount,
+                    stackTest->elemSize);
 
+    char*  stackDataCopy = (char*) stackTest->stackData;
+    size_t elemSize      =         stackTest->elemSize;
 
-    return true;
+    char* format = GetArrayPrintingFormat(stackTest->elemCount);
+    for (size_t elemNum = 0; elemNum < stackTest->elemCount; elemNum++)
+    {
+        LOG_DUMMY_PRINT(format, elemNum);
+        LogPrintELem(stackDataCopy, elemSize);
+        LOG_DUMMY_PRINT("\n");
+
+        stackDataCopy += elemSize;
+    }
+    free(format);
 }
 
 

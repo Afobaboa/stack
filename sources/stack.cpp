@@ -311,7 +311,7 @@ static bool StackIsCompressNeed(Stack* stack)
 
 static stackError_t StackExpand(Stack* stack)
 {                       
-    // void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferSize * 2 * stack->elemSize); 
+    // void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferCapacity * 2 * stack->elemSize); 
     void* newDataBuffer = MyRecalloc(stack->dataBuffer, stack->bufferCapacity, 
                                      stack->bufferCapacity * 2, stack->elemSize);
     if (newDataBuffer == NULL)
@@ -329,7 +329,8 @@ static stackError_t StackExpand(Stack* stack)
 static stackError_t StackCompress(Stack* stack)
 {   
     // printf("stack->bufferSize = %zu\n", stack->bufferSize);
-    void* newDataBuffer = MyRecalloc(stack->dataBuffer, stack->elemSize,
+    // void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferCapacity / 2 * stack->elemSize);
+    void* newDataBuffer = MyRecalloc(stack->dataBuffer, stack->bufferCapacity,
                                      stack->bufferCapacity / 2, stack->elemSize);
     // printf("newDataBuffer = %p\n", newDataBuffer);
     if (newDataBuffer == NULL)

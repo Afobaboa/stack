@@ -7,21 +7,22 @@
 //----------------------------------------------------------------------------------------
 
 
-void* MyRecalloc(void* oldData, const size_t oldDataSize,
-                 const size_t newDataSize, const size_t elemSize)
+void* MyRecalloc(void* oldData, const size_t oldDataСapacity,
+                 const size_t newDataCapacity, const size_t elemSize)
 {
-    void* newData = calloc(newDataSize, elemSize);
+    void* newData = calloc(newDataCapacity, elemSize);
     if (newData == NULL)
         return NULL;
 
-    if (newDataSize < oldDataSize)
+    if (newDataCapacity < oldDataСapacity)
     {
-        memmove(newData, oldData, newDataSize);
+        memmove(newData, oldData, newDataCapacity * elemSize);
     }
     else 
     {
-        memmove(newData, oldData, oldDataSize);
-        memset((char*) newData + oldDataSize, 0, newDataSize - oldDataSize);
+        memmove(newData, oldData, oldDataСapacity * elemSize);
+        memset((char*) newData + oldDataСapacity * elemSize, 0, 
+                                        (newDataCapacity - oldDataСapacity) * elemSize);
     }
 
     free(oldData);
