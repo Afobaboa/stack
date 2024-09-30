@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -6,6 +7,27 @@
 
 #include "../headers/stack.h"
 #include "../headers/myRecalloc.h"
+
+
+//----------------------------------------------------------------------------------------
+
+
+/**
+ * 
+ */
+#ifndef DEBUG_SWITCH_OFF
+
+    #define STACK_SOFT_ASSERT(stack)        \
+        stackError_t stackError = OK;       \
+        stackError = StackVerify(stack);    \
+        if (stackError != OK)               \
+            return stackError;
+
+#else
+
+    #define STACK_SOFT_ASSERT(stack) 
+
+#endif // DEBUG_SWITCH_OFF
 
 
 //----------------------------------------------------------------------------------------
@@ -97,17 +119,31 @@ static stackError_t StackCompress(Stack* stack);
 ON_DEBUG(static void StackPrintFields(Stack* stack);)
 
 
+/**
+ * 
+ */
+static stackError_t StackVerify(const Stack* stack);
+
+
+/**
+ * 
+ */
+ON_DEBUG(static stackError_t StackInfoVerify(const StackInfo* stackInfo);)
+
+
 //----------------------------------------------------------------------------------------
 
 
 stackError_t StackCreate(Stack**      stack, ON_DEBUG(StackInfo* stackInfo,) 
                          const size_t elemSize)
 {
+    #ifndef DEBUG_SWITCH_OFF
     if (stack == NULL)
-        return NULL_STACK_PTR;
+        return STACK_NULL_PTR;
 
     if (StackIsInit(*stack))
         return IS_INIT;
+    #endif // DEBUG_SWITCH_OFF
 
     *stack = (Stack*) calloc(1, sizeof(Stack));
     if (*stack == NULL) 
@@ -116,7 +152,7 @@ stackError_t StackCreate(Stack**      stack, ON_DEBUG(StackInfo* stackInfo,)
     (*stack)->bufferCapacity = MIN_STACK_SIZE;
     (*stack)->elemCount      = 0;
     (*stack)->elemSize       = elemSize;
-    (*stack)->dataBuffer = calloc(MIN_STACK_SIZE, elemSize);
+    (*stack)->dataBuffer     = calloc(MIN_STACK_SIZE, elemSize);
 
     ON_DEBUG((*stack)->stackInfo = stackInfo;)
 
@@ -133,6 +169,8 @@ stackError_t StackCreate(Stack**      stack, ON_DEBUG(StackInfo* stackInfo,)
 #ifndef DEBUG_SWITCH_OFF
 StackInfo* StackInfoGet(const char* stackName, const Place place)
 {
+    assert(stackName);
+
     StackInfo* stackInfo = (StackInfo*) calloc(1, sizeof(StackInfo));
 
     stackInfo->name  = stackName;
@@ -145,12 +183,11 @@ StackInfo* StackInfoGet(const char* stackName, const Place place)
 
 stackError_t StackDelete(Stack** stack)
 {
-    if (stack == NULL)
-        return NULL_STACK_PTR;
+    #ifndef DEBUG_SWITCH_OFF
+    if (stack == NULL || *stack == NULL)
+        return STACK_NULL_PTR;
+    #endif // DEBUG_SWITCH_OFF
 
-    if (!StackIsInit(*stack))
-        return NOT_INIT;
-    
     free((*stack)->dataBuffer);
     ON_DEBUG(free((*stack)->stackInfo);)
 
@@ -170,29 +207,21 @@ stackError_t StackDelete(Stack** stack)
 
 stackError_t StackPop(Stack* stack, void* elemBufferPtr)
 {
+    STACK_SOFT_ASSERT(stack);
+
     if (stack->elemCount == 0)
         return UNDERFLOW;
     
     if (StackIsCompressNeed(stack))         
     {                                       
-        stackError_t stackError = OK;       
         stackError = StackCompress(stack);  
-
         if (stackError != OK)               
             return stackError;              
     }
 
-    // printf("bufferSize = %zu\n", stack->bufferSize);
-
-    // printf("dataBuffer = %p\n", stack->dataBuffer);
     void* stackElemPtr = (char*) stack->dataBuffer + (stack->elemCount - 1) * 
                                                                         stack->elemSize;
-    // printf("stackElemPtr = %p\n", stackElemPtr);
-    // printf("stackElem value = %d\n\n", *((int*) stackElemPtr));
 
-    // printf("elemBuffer value = %d\n\n", *((int*) elemBufferPtr));
-
-    // *((int*) elemBufferPtr) = *((int*) stackElemPtr);
     if (memmove(elemBufferPtr, stackElemPtr, stack->elemSize) == NULL)
         return ALLOCATE_ERROR;
 
@@ -207,24 +236,20 @@ stackError_t StackPop(Stack* stack, void* elemBufferPtr)
 
 stackError_t StackPush(Stack* stack, void* elemPtr)
 {
+    STACK_SOFT_ASSERT(stack);
+
     if (StackIsExpandNeed(stack))
     {
-        stackError_t stackError = OK;
         stackError = StackExpand(stack);
 
         if (stackError != OK)
             return stackError;
     }
 
-    // printf("dataBuffer = %p\n", stack->dataBuffer);
     void* stackElemPtr = (char*) stack->dataBuffer + stack->elemCount * stack->elemSize;
-    // printf("stackElemPtr = %p\n", stackElemPtr);
-
 
     if (memmove(stackElemPtr, elemPtr, stack->elemSize) == NULL)
         return ALLOCATE_ERROR;
-
-    // printf("stackElem value = %d\n\n", *((int*) stackElemPtr));
 
     stack->elemCount += 1;
 
@@ -235,6 +260,12 @@ stackError_t StackPush(Stack* stack, void* elemPtr)
 #ifndef DEBUG_SWITCH_OFF
 void StackDump(Stack* stack, Place place) 
 {
+    if (stack == NULL)
+    {
+        LogPrint(WARNING, place, "Stack* stack == NULL");
+        return;
+    }
+
     LogPrint(INFO, place, "Stack's dumping...\n");
 
     StackPrintFields(stack);
@@ -243,7 +274,7 @@ void StackDump(Stack* stack, Place place)
 #endif // DEBUG_SWITCH_OFF
 
 
-const char* GetStackErrorCode(const stackError_t stackError)
+const char* StackGetErrorCode(const stackError_t stackError)
 {
     switch (stackError)
     {
@@ -253,18 +284,40 @@ const char* GetStackErrorCode(const stackError_t stackError)
     case IS_INIT:
         return "IS_INIT";
 
-    case NOT_INIT:
-        return "NOT_INIT";
-
     case ALLOCATE_ERROR:
         return "ALLOCATE_ERROR";
 
     case UNDERFLOW:
         return "UNDERFLOW";
         
-    case NULL_STACK_PTR:
-        return "NULL_STACK_PTR";
-    
+    case STACK_NULL_PTR:
+        return "STACK_NULL_PTR";
+
+    case BUFFER_NULL_PTR:
+        return "BUFFER_NULL_PTR";
+
+    case CAPACITY_OVERFLOW:
+        return "CAPACITY_OVERFLOW";
+
+    case ELEM_SIZE_OVERFLOW:
+        return "ELEM_SIZE_OVERFLOW";
+
+    case ELEM_COUNT_OVERFLOW:
+        return "ELEM_COUNT_OVERFLOW";
+
+
+    #ifndef DEBUG_SWITCH_OFF
+    case STACK_INFO_NULL_PTR:
+        return "STACK_INFO_NULL_PTR";
+
+    case STACK_INFO_NULL_NAME:
+        return "STACK_INFO_NULL_NAME";
+
+    case STACK_INFO_WRONG_PLACE:
+        return "STACK_INFO_WRONG_PLACE";
+    #endif // DEBUG_SWITCH_OFF
+
+
     default:
         return "WRONG_STACK_ERROR_CODE";
     }
@@ -305,8 +358,6 @@ static bool StackIsCompressNeed(Stack* stack)
     if (stack->bufferCapacity / 4 >= stack->elemCount &&
         stack->bufferCapacity     >= 2 * MIN_STACK_SIZE)
     {
-        // printf("bufferSize = %zu, elemCount = %zu, min stack size = %zu\n",
-                // stack->bufferSize, stack->elemCount, MIN_STACK_SIZE);
         return true;
     }
 
@@ -316,7 +367,6 @@ static bool StackIsCompressNeed(Stack* stack)
 
 static stackError_t StackExpand(Stack* stack)
 {                       
-    // void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferCapacity * 2 * stack->elemSize); 
     void* newDataBuffer = MyRecalloc(stack->dataBuffer, stack->bufferCapacity, 
                                      stack->bufferCapacity * 2, stack->elemSize);
     if (newDataBuffer == NULL)
@@ -333,11 +383,9 @@ static stackError_t StackExpand(Stack* stack)
 
 static stackError_t StackCompress(Stack* stack)
 {   
-    // printf("stack->bufferSize = %zu\n", stack->bufferSize);
-    // void* newDataBuffer = realloc(stack->dataBuffer, stack->bufferCapacity / 2 * stack->elemSize);
     void* newDataBuffer = MyRecalloc(stack->dataBuffer, stack->bufferCapacity,
                                      stack->bufferCapacity / 2, stack->elemSize);
-    // printf("newDataBuffer = %p\n", newDataBuffer);
+
     if (newDataBuffer == NULL)
         return ALLOCATE_ERROR;
 
@@ -353,6 +401,12 @@ static stackError_t StackCompress(Stack* stack)
 #ifndef DEBUG_SWITCH_OFF
 static void StackInfoPrint(StackInfo* stackInfo)
 {
+    if (stackInfo == NULL)
+    {
+        LOG_PRINT(ERROR, "StackInfo* stackInfo == NULL.\n");
+        return;
+    }
+
     LOG_DUMMY_PRINT("\tStack %s was created in %s: %s(): line %d\n\n",
                     stackInfo->name,           stackInfo->place.file, 
                     stackInfo->place.function, stackInfo->place.line);
@@ -363,6 +417,15 @@ static void StackInfoPrint(StackInfo* stackInfo)
 #ifndef DEBUG_SWITCH_OFF
 static void StackPrintContent(Stack* stack)
 {
+    stackError_t stackError = OK;
+    stackError = StackVerify(stack);
+    if (stackError != OK)
+    {
+        LOG_PRINT(ERROR, "Stack wasn't verified, error code = %s.\n", 
+                                                        StackGetErrorCode(stackError));
+        return;
+    }
+
     const size_t elemCount  = stack->elemCount;
     const size_t elemSize   = stack->elemSize;
     char*        dataBuffer = (char*) (stack->dataBuffer);
@@ -397,5 +460,52 @@ static void StackPrintFields(Stack* stack)
                     stack->bufferCapacity,
                     stack->elemSize,
                     stack->elemCount);
+}
+#endif // DEBUG_SWITCH_OFF
+
+
+static stackError_t StackVerify(const Stack* stack)
+{
+    const size_t maxSizeValue = __SIZE_MAX__ / 2 - 1;
+
+    if (stack == NULL)
+        return STACK_NULL_PTR;
+    
+    if (stack->dataBuffer == NULL)
+        return BUFFER_NULL_PTR;
+
+    if (stack->bufferCapacity >= maxSizeValue)
+        return CAPACITY_OVERFLOW;
+
+    if (stack->elemCount >= maxSizeValue)
+        return ELEM_COUNT_OVERFLOW;
+    
+    if (stack->elemSize >= maxSizeValue)
+        return ELEM_SIZE_OVERFLOW;
+
+    #ifndef DEBUG_SWITCH_OFF
+    stackError_t stackError = OK;
+    stackError = StackInfoVerify(stack->stackInfo);
+    if (stackError != OK)
+        return stackError;
+    #endif // DEBUG_SWITCH_OFF
+
+    return OK;
+}
+
+
+#ifndef DEBUG_SWITCH_OFF
+static stackError_t StackInfoVerify(const StackInfo* stackInfo)
+{
+    if (stackInfo == NULL)
+        return STACK_INFO_NULL_PTR;
+    
+    if (stackInfo->name == NULL)
+        return STACK_INFO_NULL_NAME;
+
+    if (!IsPlaceCorrect(stackInfo->place))
+        return STACK_INFO_WRONG_PLACE;
+
+    return OK;
 }
 #endif // DEBUG_SWITCH_OFF

@@ -12,7 +12,10 @@ void* MyRecalloc(void* oldData, const size_t oldDataСapacity,
 {
     void* newData = calloc(newDataCapacity, elemSize);
     if (newData == NULL)
+    {
+        free(oldData);
         return NULL;
+    }
 
     if (newDataCapacity < oldDataСapacity)
     {

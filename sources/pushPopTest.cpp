@@ -118,7 +118,7 @@ static bool StackPushPopTestCreate(StackPushPopTest* stackTest, const size_t ele
     if (stackError != OK)
     {
         LOG_PRINT(ERROR, "Stack can't be created, stackError code = %s.", 
-                                                        GetStackErrorCode(stackError));
+                                                        StackGetErrorCode(stackError));
         return false;
     }
 
@@ -138,7 +138,7 @@ static bool DoStackPush(StackPushPopTest* stackTest)
         if (stackError != OK)
         {
             LOG_PRINT(ERROR, "Elem [%zu] can't be pushed, stack error code = %s.",
-                                                          GetStackErrorCode(stackError));
+                                                          StackGetErrorCode(stackError));
             return false;
         }
 
@@ -176,7 +176,7 @@ static bool DoStackPop(StackPushPopTest* stackTest)
         if (stackError != OK)
         {
             LOG_PRINT(ERROR, "Elem [%zu] can't be popped, stack error code = %s.",
-                                                  elemNum, GetStackErrorCode(stackError));
+                                                  elemNum, StackGetErrorCode(stackError));
             free(elemBuffer);
             return false;
         }
