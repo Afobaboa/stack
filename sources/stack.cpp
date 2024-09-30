@@ -17,11 +17,11 @@
  */
 #ifndef DEBUG_SWITCH_OFF
 
-    #define STACK_SOFT_ASSERT(stack)        \
-        stackError_t stackError = OK;       \
-        stackError = StackVerify(stack);    \
-        if (stackError != OK)               \
-            return stackError;
+    #define STACK_SOFT_ASSERT(stack)         \
+        stackError_t STACK_ERROR = OK;       \
+        STACK_ERROR = StackVerify(stack);    \
+        if (STACK_ERROR != OK)               \
+            return STACK_ERROR;
 
 #else
 
@@ -122,7 +122,7 @@ ON_DEBUG(static void StackPrintFields(Stack* stack);)
 /**
  * 
  */
-static stackError_t StackVerify(const Stack* stack);
+ON_DEBUG(static stackError_t StackVerify(const Stack* stack);)
 
 
 /**
@@ -213,7 +213,8 @@ stackError_t StackPop(Stack* stack, void* elemBufferPtr)
         return UNDERFLOW;
     
     if (StackIsCompressNeed(stack))         
-    {                                       
+    {                           
+        stackError_t stackError = OK;            
         stackError = StackCompress(stack);  
         if (stackError != OK)               
             return stackError;              
@@ -240,6 +241,7 @@ stackError_t StackPush(Stack* stack, void* elemPtr)
 
     if (StackIsExpandNeed(stack))
     {
+        stackError_t stackError = OK;
         stackError = StackExpand(stack);
 
         if (stackError != OK)
@@ -464,6 +466,7 @@ static void StackPrintFields(Stack* stack)
 #endif // DEBUG_SWITCH_OFF
 
 
+#ifndef DEBUG_SWITCH_OFF
 static stackError_t StackVerify(const Stack* stack)
 {
     const size_t maxSizeValue = __SIZE_MAX__ / 2 - 1;
@@ -492,6 +495,7 @@ static stackError_t StackVerify(const Stack* stack)
 
     return OK;
 }
+#endif // DEBUG_SWITCH_OFF
 
 
 #ifndef DEBUG_SWITCH_OFF
