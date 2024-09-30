@@ -186,11 +186,11 @@ static bool DoStackPop(StackPushPopTest* stackTest)
             LOG_PRINT(ERROR, "Elem [%zu] isn't popped correct: ", elemNum);
 
             LOG_DUMMY_PRINT("\t stackDataEndCopy[%zu] = 0x", elemNum);
-            LogPrintELem(stackDataEndCopy, elemSize);
+            LOG_PRINT_ELEM(stackDataEndCopy, elemSize);
             LOG_DUMMY_PRINT("\n");
             
             LOG_DUMMY_PRINT("\n\t *elemBuffer = 0x");
-            LogPrintELem(elemBuffer, elemSize);
+            LOG_PRINT_ELEM(elemBuffer, elemSize);
             LOG_DUMMY_PRINT("\n");
 
             STACK_DUMP(stackTest->stack);
@@ -218,11 +218,11 @@ static void StackPushPopTestPrint(StackPushPopTest* stackTest)
     char*  stackDataCopy = (char*) stackTest->stackData;
     size_t elemSize      =         stackTest->elemSize;
 
-    char* format = GetArrayPrintingFormat(stackTest->elemCount);
+    char* format = GET_ARRAY_PRINTING_FORMAT(stackTest->elemCount);
     for (size_t elemNum = 0; elemNum < stackTest->elemCount; elemNum++)
     {
         LOG_DUMMY_PRINT(format, elemNum);
-        LogPrintELem(stackDataCopy, elemSize);
+        LOG_PRINT_ELEM(stackDataCopy, elemSize);
         LOG_DUMMY_PRINT("\n");
 
         stackDataCopy += elemSize;

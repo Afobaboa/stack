@@ -358,12 +358,12 @@ static void StackPrintContent(Stack* stack)
     const size_t elemCount  = stack->elemCount;
     const size_t elemSize   = stack->elemSize;
     char*        dataBuffer = (char*) (stack->dataBuffer);
-    char*        format     = GetArrayPrintingFormat(stack->elemCount);
+    char*        format     = GET_ARRAY_PRINTING_FORMAT(stack->elemCount);
 
     for (size_t elemNum = 0; elemNum < elemCount; elemNum++)
     {
         LOG_DUMMY_PRINT(format, elemNum);
-        LogPrintELem(dataBuffer, elemSize);
+        LOG_PRINT_ELEM(dataBuffer, elemSize);
         LOG_DUMMY_PRINT("\n");
 
         dataBuffer += elemSize;
