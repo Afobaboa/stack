@@ -14,11 +14,13 @@
 /**
  * 
  */
+#ifndef DEBUG_SWITCH_OFF
 struct StackInfo
 {
     const char* name;   /**<  */
     Place       place;  /**<  */
 };
+#endif // DEBUG_SWITCH_OFF
 
 
 /**
@@ -56,13 +58,13 @@ static bool StackIsInit(Stack* stack);
 /**
  * 
  */
-static void StackInfoPrint(StackInfo* stackInfo);
+ON_DEBUG(static void StackInfoPrint(StackInfo* stackInfo);)
 
 
 /**
  * 
  */
-static void StackPrintContent(Stack* stack);
+ON_DEBUG(static void StackPrintContent(Stack* stack);)
 
 
 /**
@@ -92,13 +94,14 @@ static stackError_t StackCompress(Stack* stack);
 /**
  * 
  */
-static void StackPrintFields(Stack* stack);
+ON_DEBUG(static void StackPrintFields(Stack* stack);)
 
 
 //----------------------------------------------------------------------------------------
 
 
-stackError_t StackCreate(Stack** stack, StackInfo* stackInfo, const size_t elemSize)
+stackError_t StackCreate(Stack**      stack, ON_DEBUG(StackInfo* stackInfo,) 
+                         const size_t elemSize)
 {
     if (stack == NULL)
         return NULL_STACK_PTR;
@@ -127,7 +130,7 @@ stackError_t StackCreate(Stack** stack, StackInfo* stackInfo, const size_t elemS
 }
 
 
-// ON_DEBUG
+#ifndef DEBUG_SWITCH_OFF
 StackInfo* StackInfoGet(const char* stackName, const Place place)
 {
     StackInfo* stackInfo = (StackInfo*) calloc(1, sizeof(StackInfo));
@@ -137,6 +140,7 @@ StackInfo* StackInfoGet(const char* stackName, const Place place)
 
     return stackInfo;
 }
+#endif // DEBUG_SWITCH_OFF
 
 
 stackError_t StackDelete(Stack** stack)
@@ -228,7 +232,7 @@ stackError_t StackPush(Stack* stack, void* elemPtr)
 }
 
 
-// ON_DEBUG
+#ifndef DEBUG_SWITCH_OFF
 void StackDump(Stack* stack, Place place) 
 {
     LogPrint(INFO, place, "Stack's dumping...\n");
@@ -236,6 +240,7 @@ void StackDump(Stack* stack, Place place)
     StackPrintFields(stack);
     StackPrintContent(stack);
 }
+#endif // DEBUG_SWITCH_OFF
 
 
 const char* GetStackErrorCode(const stackError_t stackError)
@@ -345,14 +350,17 @@ static stackError_t StackCompress(Stack* stack)
 }
 
 
+#ifndef DEBUG_SWITCH_OFF
 static void StackInfoPrint(StackInfo* stackInfo)
 {
     LOG_DUMMY_PRINT("\tStack %s was created in %s: %s(): line %d\n\n",
                     stackInfo->name,           stackInfo->place.file, 
                     stackInfo->place.function, stackInfo->place.line);
 }
+#endif // DEBUG_SWITCH_OFF
 
 
+#ifndef DEBUG_SWITCH_OFF
 static void StackPrintContent(Stack* stack)
 {
     const size_t elemCount  = stack->elemCount;
@@ -363,6 +371,7 @@ static void StackPrintContent(Stack* stack)
     for (size_t elemNum = 0; elemNum < elemCount; elemNum++)
     {
         LOG_DUMMY_PRINT(format, elemNum);
+        LOG_DUMMY_PRINT("0x");
         LOG_PRINT_ELEM(dataBuffer, elemSize);
         LOG_DUMMY_PRINT("\n");
 
@@ -372,8 +381,10 @@ static void StackPrintContent(Stack* stack)
 
     free(format);
 }
+#endif // DEBUG_SWITCH_OFF
 
 
+#ifndef DEBUG_SWITCH_OFF
 static void StackPrintFields(Stack* stack)
 {
     StackInfoPrint(stack->stackInfo);
@@ -387,3 +398,4 @@ static void StackPrintFields(Stack* stack)
                     stack->elemSize,
                     stack->elemCount);
 }
+#endif // DEBUG_SWITCH_OFF

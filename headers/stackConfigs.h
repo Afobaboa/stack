@@ -20,13 +20,13 @@
 /**
  * 
  */
-// #define DEBUG_SWITCH_OFF
+#define DEBUG_SWITCH_OFF
 
 
 #ifndef HASH_SWITCH_OFF
-    #define HASH(code) code
+    #define HASH(...) __VA_ARGS__
 #else 
-    #define HASH(code) 
+    #define HASH(...) 
 #endif
 
 
@@ -34,9 +34,9 @@
  * 
  */
 #ifndef CANARY_SWITCH_OFF
-    #define CANARY(code) code
+    #define CANARY(...) __VA_ARGS__
 #else
-    #define CANARY(code) 
+    #define CANARY(...) 
 #endif
 
 
@@ -44,9 +44,9 @@
  * 
  */
 #ifndef DEBUG_SWITCH_OFF
-    #define ON_DEBUG(code) code
+    #define ON_DEBUG(...) __VA_ARGS__
 #else
-    #define ON_DEBUG(code) 
+    #define ON_DEBUG(...) 
 #endif
 
 

@@ -48,7 +48,7 @@
  * 
  */
 #define STACK_CREATE(stack, elemSize)                      \
-    StackCreate(&stack, STACK_INFO_GET(stack), elemSize)   
+    StackCreate(&stack, ON_DEBUG(STACK_INFO_GET(stack),) elemSize)   
 
 
 
@@ -91,7 +91,8 @@ typedef enum STACK_ERRORS stackError_t;
 /**
  * 
  */
-stackError_t StackCreate(Stack** stack, StackInfo* stackInfo, const size_t elemSize);
+stackError_t StackCreate(Stack**      stack, ON_DEBUG(StackInfo* stackInfo,) 
+                         const size_t elemSize);
 
 
 /**

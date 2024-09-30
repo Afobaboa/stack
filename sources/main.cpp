@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "../headers/stack.h"
 
@@ -15,9 +16,10 @@ int main()
 
     STACK_DUMP(stack);
 
-    const size_t elemCount  = 110;
+    const size_t elemCount  = 20;
     stackError_t stackError = OK;
     int          elemBuffer = 0;
+    char*        format     = GET_ARRAY_PRINTING_FORMAT(elemCount);
 
     for (size_t elemNum = 0; elemNum < elemCount; elemNum++)
     {
@@ -37,9 +39,11 @@ int main()
         if (stackError != OK)
             return 1;
 
-        printf("%zu elem value is %d\n", elemNum, elemBuffer);
+        printf(format, elemNum);
+        printf("%d\n", elemBuffer);
     }
 
+    free(format);
     STACK_DUMP(stack);
     StackDelete(&stack);
     LOG_CLOSE();

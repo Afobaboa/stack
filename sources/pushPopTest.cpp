@@ -222,6 +222,7 @@ static void StackPushPopTestPrint(StackPushPopTest* stackTest)
     for (size_t elemNum = 0; elemNum < stackTest->elemCount; elemNum++)
     {
         LOG_DUMMY_PRINT(format, elemNum);
+        LOG_DUMMY_PRINT("0x");
         LOG_PRINT_ELEM(stackDataCopy, elemSize);
         LOG_DUMMY_PRINT("\n");
 
