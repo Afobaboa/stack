@@ -1,5 +1,5 @@
-#ifndef STACK_CONFIG_H
-#define STACK_CONFIG_H
+#ifndef STACK_CONFIGS_H
+#define STACK_CONFIGS_H
 
 
 //----------------------------------------------------------------------------------------
@@ -53,4 +53,4 @@
 //----------------------------------------------------------------------------------------
 
 
-#endif // STACK_CONFIG_H
+#endif // STACK_CONFIGS_H

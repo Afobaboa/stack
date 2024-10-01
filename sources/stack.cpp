@@ -8,6 +8,10 @@
 #include "../headers/stack.h"
 #include "../headers/myRecalloc.h"
 
+#ifndef CANARY_SWITCH_OFF
+#include "../headers/canary.h"
+#endif // CANARY_SWITCH_OFF
+
 
 //----------------------------------------------------------------------------------------
 
