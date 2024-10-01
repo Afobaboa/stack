@@ -54,14 +54,22 @@ struct StackInfo
  */
 struct Stack 
 {
-    void*      dataBuffer;     /**< Pointer to buffer with stack's data.        */
-    size_t     bufferCapacity; /**< Max count of elems which stack can contain. */
-    size_t     elemSize;       /**< Size of each elem in bytes.                 */
-    size_t     elemCount;      /**< Count of elems in stack.                    */
+    #ifndef CANARY_SWITCH_OFF
+    canary_t leftCanary;        /**<  */
+    #endif // CANARY_SWITCH_OFF
+
+    void*      dataBuffer;      /**< Pointer to buffer with stack's data.        */
+    size_t     bufferCapacity;  /**< Max count of elems which stack can contain. */
+    size_t     elemSize;        /**< Size of each elem in bytes.                 */
+    size_t     elemCount;       /**< Count of elems in stack.                    */
 
     #ifndef DEBUG_SWITCH_OFF
-    StackInfo* stackInfo;      /**< Info about first stack definition.*/
+    StackInfo* stackInfo;       /**< Info about first stack definition.*/
     #endif // DEBUG_SWITCH_OFF
+
+    #ifndef CANARY_SWITCH_OFF
+    canary_t rightCanary;       /**<  */
+    #endif // CANARY_SWITCH_OFF
 };
 
 
@@ -170,15 +178,26 @@ stackError_t StackCreate(Stack**      stack, ON_DEBUG(StackInfo* stackInfo,)
     (*stack)->elemSize       = elemSize;
     (*stack)->dataBuffer     = calloc(MIN_STACK_SIZE, elemSize);
 
-    #ifndef DEBUG_SWITCH_OFF
-    (*stack)->stackInfo = stackInfo;
-    #endif // DEBUG_SWITCH_OFF
-
     if ((*stack)->dataBuffer == NULL)
     {
         StackDelete(stack);
         return ALLOCATE_ERROR;
     }
+
+
+    #ifndef DEBUG_SWITCH_OFF
+    (*stack)->stackInfo = stackInfo;
+    #endif // DEBUG_SWITCH_OFF
+
+
+    #ifndef CANARY_SWITCH_OFF
+    if (CanarySet(&((*stack)->leftCanary)))
+        return CANARY_LEFT_SPOILED;
+
+    if (CanarySet(&((*stack)->rightCanary)))
+        return CANARY_RIGHT_SPOILED;
+    #endif // CANARY_SWITCH_OFF
+
 
     STACK_SOFT_ASSERT(*stack);
 
@@ -211,14 +230,23 @@ stackError_t StackDelete(Stack** stack)
     free((*stack)->dataBuffer);
     (*stack)->dataBuffer = NULL;
 
+
     #ifndef DEBUG_SWITCH_OFF
     free((*stack)->stackInfo);
     (*stack)->stackInfo = NULL;
     #endif // DEBUG_SWITCH_OFF
 
+
     (*stack)->bufferCapacity = 0;
     (*stack)->elemCount      = 0;
     (*stack)->elemSize       = 0;
+
+
+    #ifndef CANARY_SWITCH_OFF
+    CanaryDelete(&((*stack)->leftCanary));
+    CanaryDelete(&((*stack)->rightCanary));
+    #endif // CANARY_SWITCH_OFF
+
 
     free(*stack);
     *stack = NULL;
@@ -298,48 +326,57 @@ void StackDump(Stack* stack, Place place)
 #endif // DEBUG_SWITCH_OFF
 
 
-const char* StackGetErrorCode(const stackError_t stackError)
+const char* StackGetErrorName(const stackError_t stackError)
 {
     switch (stackError)
     {
     case OK: 
-        return "OK";
+        return GET_NAME(OK);
 
     case IS_INIT:
-        return "IS_INIT";
+        return GET_NAME(IS_INIT);
 
     case ALLOCATE_ERROR:
-        return "ALLOCATE_ERROR";
+        return GET_NAME(ALLOCATE_ERROR);
 
     case UNDERFLOW:
-        return "UNDERFLOW";
+        return GET_NAME(UNDERFLOW);
         
     case STACK_NULL_PTR:
-        return "STACK_NULL_PTR";
+        return GET_NAME(STACK_NULL_PTR);
 
     case BUFFER_NULL_PTR:
-        return "BUFFER_NULL_PTR";
+        return GET_NAME(BUFFER_NULL_PTR);
 
     case CAPACITY_OVERFLOW:
-        return "CAPACITY_OVERFLOW";
+        return GET_NAME(CAPACITY_OVERFLOW);
 
     case ELEM_SIZE_OVERFLOW:
-        return "ELEM_SIZE_OVERFLOW";
+        return GET_NAME(ELEM_SIZE_OVERFLOW);
 
     case ELEM_COUNT_OVERFLOW:
-        return "ELEM_COUNT_OVERFLOW";
+        return GET_NAME(ELEM_COUNT_OVERFLOW);
 
 
     #ifndef DEBUG_SWITCH_OFF
     case STACK_INFO_NULL_PTR:
-        return "STACK_INFO_NULL_PTR";
+        return GET_NAME(STACK_INFO_NULL_PTR);
 
     case STACK_INFO_NULL_NAME:
-        return "STACK_INFO_NULL_NAME";
+        return GET_NAME(STACK_INFO_NULL_NAME);
 
     case STACK_INFO_WRONG_PLACE:
-        return "STACK_INFO_WRONG_PLACE";
+        return GET_NAME(STACK_INFO_WRONG_PLACE);
     #endif // DEBUG_SWITCH_OFF
+
+
+    #ifndef CANARY_SWITCH_OFF
+    case CANARY_RIGHT_SPOILED:
+        return GET_NAME(CANARY_RIGHT_SPOILED);
+
+    case CANARY_LEFT_SPOILED:
+        return GET_NAME(CANARY_LEFT_SPOILED);
+    #endif // CANARY_SWITCH_OFF
 
 
     default:
@@ -364,6 +401,11 @@ static bool StackIsInit(Stack* stack)
         #ifndef DEBUG_SWITCH_OFF
         && stack->stackInfo == NULL
         #endif // DEBUG_SWITCH_OFF
+
+        #ifndef CANARY_SWITCH_OFF
+        && stack->leftCanary  == 0
+        && stack->rightCanary == 0
+        #endif // CANARY_SWITCH_OFF
         )
     {
         return false;
@@ -451,7 +493,7 @@ static void StackPrintContent(Stack* stack)
     if (stackError != OK)
     {
         LOG_PRINT(ERROR, "Stack wasn't verified, error code = %s.\n", 
-                                                        StackGetErrorCode(stackError));
+                                                        StackGetErrorName(stackError));
         return;
     }
 
@@ -481,20 +523,34 @@ static void StackPrintFields(Stack* stack)
 {
     StackInfoPrint(stack->stackInfo);
 
+    #ifndef CANARY_SWITCH_OFF
+    LOG_DUMMY_PRINT(("leftCanary = 0x"));
+    LOG_PRINT_ELEM(&(stack->leftCanary), sizeof(canary_t));
+    LOG_DUMMY_PRINT("\n");
+    #endif // CANARY_SWITCH_OFF
+
     LOG_DUMMY_PRINT("\tdataBuffer = %p \n"
                     "\tbufferSize = %zu \n"
                     "\telemSize = %zu \n"
-                    "\telemCount = %zu \n\n",
+                    "\telemCount = %zu \n",
                     stack->dataBuffer, 
                     stack->bufferCapacity,
                     stack->elemSize,
                     stack->elemCount);
+
+    #ifndef CANARY_SWITCH_OFF
+    LOG_DUMMY_PRINT(("rightCanary = 0x"));
+    LOG_PRINT_ELEM(&(stack->rightCanary), sizeof(canary_t));
+    LOG_DUMMY_PRINT("\n");
+    #endif // CANARY_SWITCH_OFF
+
+    LOG_DUMMY_PRINT("\n");
 }
 #endif // DEBUG_SWITCH_OFF
 
 
 #ifndef DEBUG_SWITCH_OFF
-static stackError_t StackVerify(const Stack* stack)
+static stackError_t StackVerify(Stack* stack)
 {
     const size_t maxSizeValue = __SIZE_MAX__ / 2 - 1;
 
@@ -513,12 +569,23 @@ static stackError_t StackVerify(const Stack* stack)
     if (stack->elemSize >= maxSizeValue)
         return ELEM_SIZE_OVERFLOW;
 
+
     #ifndef DEBUG_SWITCH_OFF
     stackError_t stackError = OK;
     stackError = StackInfoVerify(stack->stackInfo);
     if (stackError != OK)
         return stackError;
     #endif // DEBUG_SWITCH_OFF
+
+
+    #ifndef CANARY_SWITCH_OFF
+    if (!CanaryCheck(&(stack->leftCanary)))
+        return CANARY_LEFT_SPOILED;
+
+    if (!CanaryCheck(&(stack->rightCanary)))
+        return CANARY_RIGHT_SPOILED;
+    #endif // CANARY_SWITCH_OFF
+
 
     return OK;
 }

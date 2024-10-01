@@ -26,6 +26,12 @@ bool CanarySet(canary_t* canaryPtr);
 bool CanaryCheck(canary_t* canaryPtr);
 
 
+/**
+ * 
+ */
+void CanaryDelete(canary_t* canaryPtr);
+
+
 //----------------------------------------------------------------------------------------
 
 

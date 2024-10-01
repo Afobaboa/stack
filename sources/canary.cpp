@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "../headers/canary.h"
 
@@ -31,4 +32,10 @@ bool CanaryCheck(canary_t* canaryPtr)
         return false;
     
     return true;
+}
+
+
+void CanaryDelete(canary_t* canaryPtr)
+{
+    memset(canaryPtr, 0, sizeof(canary_t));
 }

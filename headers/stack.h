@@ -77,21 +77,26 @@ struct StackInfo;
  */
 enum STACK_ERRORS 
 {
-    OK,                     /**<  */
-    IS_INIT,                /**<  */
-    ALLOCATE_ERROR,         /**<  */
-    UNDERFLOW,              /**<  */
-    STACK_NULL_PTR,         /**<  */
-    BUFFER_NULL_PTR,        /**<  */
-    CAPACITY_OVERFLOW,      /**<  */
-    ELEM_SIZE_OVERFLOW,     /**<  */
-    ELEM_COUNT_OVERFLOW     /**<  */
+    OK,                         /**<  */
+    IS_INIT,                    /**<  */
+    ALLOCATE_ERROR,             /**<  */
+    UNDERFLOW,                  /**<  */
+    STACK_NULL_PTR,             /**<  */
+    BUFFER_NULL_PTR,            /**<  */
+    CAPACITY_OVERFLOW,          /**<  */
+    ELEM_SIZE_OVERFLOW,         /**<  */
+    ELEM_COUNT_OVERFLOW         /**<  */
     
     #ifndef DEBUG_SWITCH_OFF
-    ,STACK_INFO_NULL_PTR    /**<  */
-    ,STACK_INFO_NULL_NAME   /**<  */
-    ,STACK_INFO_WRONG_PLACE /**<  */
+    ,STACK_INFO_NULL_PTR        /**<  */
+    ,STACK_INFO_NULL_NAME       /**<  */
+    ,STACK_INFO_WRONG_PLACE     /**<  */
     #endif // DEBUG_SWITCH_OFF
+
+    #ifndef CANARY_SWITCH_OFF
+    ,CANARY_RIGHT_SPOILED       /**<  */
+    ,CANARY_LEFT_SPOILED        /**<  */
+    #endif // CANARY_SWITCH_OFF
 };
 typedef enum STACK_ERRORS stackError_t;
 
@@ -143,7 +148,7 @@ void StackDump(Stack* stack, Place place);
 /**
  * 
  */
-const char* StackGetErrorCode(const stackError_t stackError);
+const char* StackGetErrorName(const stackError_t stackError);
 
 
 //----------------------------------------------------------------------------------------
