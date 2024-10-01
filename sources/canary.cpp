@@ -20,3 +20,15 @@ bool CanarySet(canary_t* canaryPtr)
     *canaryPtr = CANARY;
     return true;
 }
+
+
+bool CanaryCheck(canary_t* canaryPtr)
+{
+    if (canaryPtr == NULL)
+        return false;
+
+    if (*canaryPtr != CANARY)
+        return false;
+    
+    return true;
+}

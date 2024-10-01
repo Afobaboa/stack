@@ -20,6 +20,12 @@ typedef long long canary_t;
 bool CanarySet(canary_t* canaryPtr);
 
 
+/**
+ * 
+ */
+bool CanaryCheck(canary_t* canaryPtr);
+
+
 //----------------------------------------------------------------------------------------
 
 
