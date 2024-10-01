@@ -64,7 +64,9 @@ struct Stack;
 /**
  * 
  */
-ON_DEBUG(struct StackInfo;)
+#ifndef DEBUG_SWITCH_OFF
+struct StackInfo;
+#endif // DEBUG_SWITCH_OFF
 
 
 //----------------------------------------------------------------------------------------
@@ -107,7 +109,9 @@ stackError_t StackCreate(Stack**      stack, ON_DEBUG(StackInfo* stackInfo,)
 /**
  * 
  */
-ON_DEBUG(StackInfo* StackInfoGet(const char* stackName, const Place place);)
+#ifndef DEBUG_SWITCH_OFF
+StackInfo* StackInfoGet(const char* stackName, const Place place);
+#endif // DEBUG_SWITCH_OFF
 
 
 /**
@@ -131,7 +135,9 @@ stackError_t StackPush(Stack* stack, void* elemPtr);
 /**
  * 
  */
-ON_DEBUG(void StackDump(Stack* stack, Place place);)
+#ifndef DEBUG_SWITCH_OFF
+void StackDump(Stack* stack, Place place);
+#endif // DEBUG_SWITCH_OFF
 
 
 /**

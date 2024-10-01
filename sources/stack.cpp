@@ -55,7 +55,9 @@ struct Stack
     size_t     elemSize;       /**< Size of each elem in bytes.                 */
     size_t     elemCount;      /**< Count of elems in stack.                    */
 
-    ON_DEBUG(StackInfo* stackInfo;)     /**< Info about first stack definition.*/
+    #ifndef DEBUG_SWITCH_OFF
+    StackInfo* stackInfo;      /**< Info about first stack definition.*/
+    #endif // DEBUG_SWITCH_OFF
 };
 
 
@@ -80,13 +82,17 @@ static bool StackIsInit(Stack* stack);
 /**
  * 
  */
-ON_DEBUG(static void StackInfoPrint(StackInfo* stackInfo);)
+#ifndef DEBUG_SWITCH_OFF
+static void StackInfoPrint(StackInfo* stackInfo);
+#endif // DEBUG_SWITCH_OFF
 
 
 /**
  * 
  */
-ON_DEBUG(static void StackPrintContent(Stack* stack);)
+#ifndef DEBUG_SWITCH_OFF
+static void StackPrintContent(Stack* stack);
+#endif // DEBUG_SWITCH_OFF
 
 
 /**
@@ -116,19 +122,25 @@ static stackError_t StackCompress(Stack* stack);
 /**
  * 
  */
-ON_DEBUG(static void StackPrintFields(Stack* stack);)
+#ifndef DEBUG_SWITCH_OFF
+static void StackPrintFields(Stack* stack);
+#endif // DEBUG_SWITCH_OFF
 
 
 /**
  * 
  */
-ON_DEBUG(static stackError_t StackVerify(const Stack* stack);)
+#ifndef DEBUG_SWITCH_OFF
+static stackError_t StackVerify(const Stack* stack);
+#endif // DEBUG_SWITCH_OFF
 
 
 /**
  * 
  */
-ON_DEBUG(static stackError_t StackInfoVerify(const StackInfo* stackInfo);)
+#ifndef DEBUG_SWITCH_OFF
+static stackError_t StackInfoVerify(const StackInfo* stackInfo);
+#endif // DEBUG_SWITCH_OFF
 
 
 //----------------------------------------------------------------------------------------
@@ -154,13 +166,17 @@ stackError_t StackCreate(Stack**      stack, ON_DEBUG(StackInfo* stackInfo,)
     (*stack)->elemSize       = elemSize;
     (*stack)->dataBuffer     = calloc(MIN_STACK_SIZE, elemSize);
 
-    ON_DEBUG((*stack)->stackInfo = stackInfo;)
+    #ifndef DEBUG_SWITCH_OFF
+    (*stack)->stackInfo = stackInfo;
+    #endif // DEBUG_SWITCH_OFF
 
     if ((*stack)->dataBuffer == NULL)
     {
         StackDelete(stack);
         return ALLOCATE_ERROR;
     }
+
+    STACK_SOFT_ASSERT(*stack);
 
     return OK;
 }
@@ -189,10 +205,12 @@ stackError_t StackDelete(Stack** stack)
     #endif // DEBUG_SWITCH_OFF
 
     free((*stack)->dataBuffer);
-    ON_DEBUG(free((*stack)->stackInfo);)
-
     (*stack)->dataBuffer = NULL;
-    ON_DEBUG((*stack)->stackInfo = NULL;)
+
+    #ifndef DEBUG_SWITCH_OFF
+    free((*stack)->stackInfo);
+    (*stack)->stackInfo = NULL;
+    #endif // DEBUG_SWITCH_OFF
 
     (*stack)->bufferCapacity = 0;
     (*stack)->elemCount      = 0;
@@ -337,7 +355,12 @@ static bool StackIsInit(Stack* stack)
     if (stack->dataBuffer     == NULL &&
         stack->bufferCapacity == 0    &&
         stack->elemCount      == 0    &&
-        stack->elemSize       == 0)
+        stack->elemSize       == 0    
+
+        #ifndef DEBUG_SWITCH_OFF
+        && stack->stackInfo == NULL
+        #endif // DEBUG_SWITCH_OFF
+        )
     {
         return false;
     }
