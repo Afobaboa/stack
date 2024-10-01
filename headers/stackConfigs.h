@@ -20,7 +20,7 @@
 /**
  * 
  */
-// #define DEBUG_SWITCH_OFF
+#define DEBUG_SWITCH_OFF
 
 
 #ifndef HASH_SWITCH_OFF

@@ -29,7 +29,7 @@ undefined,unreachable,vla-bound,vptr
 
 
 # Flags for release version compilation
-RELEASE_FLAGS=-Wmissing-declarations -Wempty-body -DNDEBUG
+RELEASE_FLAGS=-Wmissing-declarations -Wempty-body -DNDEBUG -DLOG_SWITCH_OFF
 
 
 #-----------------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ log_clean:
 
 # Clean objects dir
 clean:
-	@rm -f $(OBJECTS) $(EXECUTABLE)
+	@rm -f $(OBJECTS) $(LOG_OBJECTS) $(EXECUTABLE)
 
 
 #----------------------------------------------------------------------------------------
@@ -151,7 +151,15 @@ PUSH_POP_TEST_OBJECTS=$(patsubst %.cpp,$(OBJECTS_DIR)/%.o,$(PUSH_POP_TEST_SOURCE
 $(PUSH_POP_TEST_NAME): $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS)
 	@$(CC) $(DEBUG_FLAGS) $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS) -o $(PUSH_POP_TEST_NAME)
 
+# Test for StackPush() and StackPop() with RELEASE_FLAGS
+$(PUSH_POP_TEST_NAME)_release: objects_dir $(PUSH_POP_TEST_NAME)_clean
+	@$(CC) $(RELEASE_FLAGS) $(PUSH_POP_TEST_SOURCES) $(LOG_SOURCES) -o $(PUSH_POP_TEST_NAME)
+	@./$(PUSH_POP_TEST_NAME)
+
 
 # Run test for StackPush() and StacPop()
 $(PUSH_POP_TEST_NAME)_run: $(PUSH_POP_TEST_NAME)
 	@./$<
+
+$(PUSH_POP_TEST_NAME)_clean:
+	@rm -f $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS) $(PUSH_POP_TEST_NAME)

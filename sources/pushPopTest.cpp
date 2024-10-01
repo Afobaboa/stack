@@ -69,7 +69,7 @@ int main()
     LOG_OPEN();
     StackPushPopTest stackTest = {};
 
-    if (StackPushPopTestCreate(&stackTest, 20000, 50) &&
+    if (StackPushPopTestCreate(&stackTest, 2E5, 50) &&
         DoStackPush(&stackTest) &&
         DoStackPop(&stackTest))
     {
@@ -80,6 +80,8 @@ int main()
 
     StackPushPopTestDelete(&stackTest);
     LOG_CLOSE();
+
+    ColoredPrintf(YELLOW, "Testing time = %zu s\n", clock() / CLOCKS_PER_SEC);
     return 0;
 }
 
