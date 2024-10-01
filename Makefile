@@ -48,13 +48,13 @@ LOG_SUBDIR=logPrinter
 
 
 # Source files which we use
-SOURCE_FILES=main.cpp stack.cpp myRecalloc.cpp
+SOURCE_FILES=main.cpp stack.cpp myRecalloc.cpp canary.cpp
 LOG_SOURCE_FILES=logPrinter.cpp
 
     
 # Header files which we use
-HEADER_FILES=stack.h myRecalloc.h
-LOG_HEADER_FILES=logPrinter.h
+HEADER_FILES=stack.h myRecalloc.h canary.h stackConfigs.h
+LOG_HEADER_FILES=logPrinter.h logPrinterConfigs.h
 
 
 # Object file which are obtained by source files compilation
@@ -137,12 +137,12 @@ clean:
 	@rm -f $(OBJECTS) $(LOG_OBJECTS) $(EXECUTABLE)
 
 
-#----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
 
 
 PUSH_POP_TEST_NAME=pushPopTest
 
-PUSH_POP_TEST_SOURCE_FILES=pushPopTest.cpp stack.cpp myRecalloc.cpp
+PUSH_POP_TEST_SOURCE_FILES=pushPopTest.cpp stack.cpp myRecalloc.cpp canary.cpp
 PUSH_POP_TEST_SOURCES=$(patsubst %.cpp,$(SOURCES_DIR)/%.cpp,$(PUSH_POP_TEST_SOURCE_FILES))
 PUSH_POP_TEST_OBJECTS=$(patsubst %.cpp,$(OBJECTS_DIR)/%.o,$(PUSH_POP_TEST_SOURCE_FILES))
 
@@ -163,3 +163,18 @@ $(PUSH_POP_TEST_NAME)_run: $(PUSH_POP_TEST_NAME)
 
 $(PUSH_POP_TEST_NAME)_clean:
 	@rm -f $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS) $(PUSH_POP_TEST_NAME)
+
+
+#-----------------------------------------------------------------------------------------
+
+
+CANARY_TEST_SOURCE_FILES=stack.cpp myRecalloc.cpp canary.cpp canaryTest.cpp
+CANARY_TEST_SOURCES=$(patsubst %.cpp,$(SOURCES_DIR)/%.cpp,$(CANARY_TEST_SOURCE_FILES))
+
+CANARY_TEST_NAME=canaryTest
+
+$(CANARY_TEST_NAME): objects_dir
+	@$(CC) $(DEBUG_FLAGS) $(CANARY_TEST_SOURCES) $(LOG_SOURCES) -o $(CANARY_TEST_NAME)
+
+$(CANARY_TEST_NAME)_run: $(CANARY_TEST_NAME)
+	@./$<

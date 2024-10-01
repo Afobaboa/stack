@@ -8,7 +8,7 @@
 /**
  * 
  */
-typedef long long canary_t;
+typedef signed long long canary_t;
 
 
 //----------------------------------------------------------------------------------------

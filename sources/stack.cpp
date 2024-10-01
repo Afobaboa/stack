@@ -19,19 +19,11 @@
 /**
  * 
  */
-#ifndef DEBUG_SWITCH_OFF
-
-    #define STACK_SOFT_ASSERT(stack)         \
-        stackError_t STACK_ERROR = OK;       \
-        STACK_ERROR = StackVerify(stack);    \
-        if (STACK_ERROR != OK)               \
-            return STACK_ERROR;
-
-#else
-
-    #define STACK_SOFT_ASSERT(stack) 
-
-#endif // DEBUG_SWITCH_OFF
+#define STACK_SOFT_ASSERT(stack)         \
+    stackError_t STACK_ERROR = OK;       \
+    STACK_ERROR = StackVerify(stack);    \
+    if (STACK_ERROR != OK)               \
+        return STACK_ERROR;
 
 
 //----------------------------------------------------------------------------------------
@@ -142,9 +134,7 @@ static void StackPrintFields(Stack* stack);
 /**
  * 
  */
-#ifndef DEBUG_SWITCH_OFF
-static stackError_t StackVerify(const Stack* stack);
-#endif // DEBUG_SWITCH_OFF
+static stackError_t StackVerify(Stack* stack);
 
 
 /**
@@ -191,10 +181,10 @@ stackError_t StackCreate(Stack**      stack, ON_DEBUG(StackInfo* stackInfo,)
 
 
     #ifndef CANARY_SWITCH_OFF
-    if (CanarySet(&((*stack)->leftCanary)))
+    if (!CanarySet(&((*stack)->leftCanary)))
         return CANARY_LEFT_SPOILED;
 
-    if (CanarySet(&((*stack)->rightCanary)))
+    if (!CanarySet(&((*stack)->rightCanary)))
         return CANARY_RIGHT_SPOILED;
     #endif // CANARY_SWITCH_OFF
 
@@ -270,8 +260,8 @@ stackError_t StackPop(Stack* stack, void* elemBufferPtr)
             return stackError;              
     }
 
-    void* stackElemPtr = (char*) stack->dataBuffer + (stack->elemCount - 1) * 
-                                                                        stack->elemSize;
+    void* stackElemPtr = (char*) stack->dataBuffer + /* CANARY(sizeof(canary_t) + ) */
+                                            (stack->elemCount - 1) * stack->elemSize;
 
     if (memmove(elemBufferPtr, stackElemPtr, stack->elemSize) == NULL)
         return ALLOCATE_ERROR;
@@ -298,7 +288,8 @@ stackError_t StackPush(Stack* stack, void* elemPtr)
             return stackError;
     }
 
-    void* stackElemPtr = (char*) stack->dataBuffer + stack->elemCount * stack->elemSize;
+    void* stackElemPtr = (char*) stack->dataBuffer + /* CANARY(sizeof(canary_t) + ) */
+                                                     stack->elemCount * stack->elemSize;
 
     if (memmove(stackElemPtr, elemPtr, stack->elemSize) == NULL)
         return ALLOCATE_ERROR;
@@ -549,13 +540,14 @@ static void StackPrintFields(Stack* stack)
 #endif // DEBUG_SWITCH_OFF
 
 
-#ifndef DEBUG_SWITCH_OFF
 static stackError_t StackVerify(Stack* stack)
 {
-    const size_t maxSizeValue = __SIZE_MAX__ / 2 - 1;
-
     if (stack == NULL)
         return STACK_NULL_PTR;
+
+
+    #ifndef DEBUG_SWITCH_OFF
+    const size_t maxSizeValue = __SIZE_MAX__ / 2 - 1;
     
     if (stack->dataBuffer == NULL)
         return BUFFER_NULL_PTR;
@@ -569,8 +561,6 @@ static stackError_t StackVerify(Stack* stack)
     if (stack->elemSize >= maxSizeValue)
         return ELEM_SIZE_OVERFLOW;
 
-
-    #ifndef DEBUG_SWITCH_OFF
     stackError_t stackError = OK;
     stackError = StackInfoVerify(stack->stackInfo);
     if (stackError != OK)
@@ -589,7 +579,6 @@ static stackError_t StackVerify(Stack* stack)
 
     return OK;
 }
-#endif // DEBUG_SWITCH_OFF
 
 
 #ifndef DEBUG_SWITCH_OFF
