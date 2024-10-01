@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "../logPrinter/logPrinter.h"
+#include "../headers/canary.h"
 #include "../headers/stack.h"
 
 
@@ -24,6 +25,8 @@ int main()
     Stack* stack = NULL;
     STACK_CREATE(stack, sizeof(int));
     StackSpoileLeftCanary(stack);
+    // int* dataLeftCanary = *((int**) ((char*) stack + sizeof(canary_t)));
+    // *dataLeftCanary = 666;
 
     int          elem       = 666;
     stackError_t stackError = OK;
