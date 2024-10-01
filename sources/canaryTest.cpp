@@ -39,6 +39,7 @@ int main()
 
     ColoredPrintf(YELLOW, "test's done.\n");
 
+    STACK_DUMP(stack);
     StackDelete(&stack);
     LOG_CLOSE();
     

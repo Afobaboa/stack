@@ -94,8 +94,10 @@ enum STACK_ERRORS
     #endif // DEBUG_SWITCH_OFF
 
     #ifndef CANARY_SWITCH_OFF
-    ,CANARY_RIGHT_SPOILED       /**<  */
-    ,CANARY_LEFT_SPOILED        /**<  */
+    ,STACK_CANARY_RIGHT_SPOILED /**<  */
+    ,STACK_CANARY_LEFT_SPOILED  /**<  */
+    ,DATA_CANARY_RIGHT_SPOILED  /**<  */
+    ,DATA_CANARY_LEFT_SPOILED   /**<  */
     #endif // CANARY_SWITCH_OFF
 };
 typedef enum STACK_ERRORS stackError_t;

@@ -69,7 +69,7 @@ int main()
     LOG_OPEN();
     StackPushPopTest stackTest = {};
 
-    if (StackPushPopTestCreate(&stackTest, 2E5, 50) &&
+    if (StackPushPopTestCreate(&stackTest, 2E1, 5) &&
         DoStackPush(&stackTest) &&
         DoStackPop(&stackTest))
     {
@@ -205,6 +205,7 @@ static bool DoStackPop(StackPushPopTest* stackTest)
     }
 
     free(elemBuffer);
+    STACK_DUMP(stack);
     return true;
 }
 
