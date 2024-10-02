@@ -164,6 +164,7 @@ static bool DataRightCanaryTest()
 static bool CheckPushPopReturnedError(Place place, 
                                       Stack* stack, stackError_t expectedStackError)
 {
+    printf("Laala\n");
     char         elem       = 'f';
     stackError_t stackError = OK;
 
