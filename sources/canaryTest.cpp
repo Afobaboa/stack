@@ -59,5 +59,5 @@ int main()
 
 static void StackSpoileLeftCanary(Stack* stack)
 {
-    *((int*) stack) = 654; 
+    *((char*) stack + 5 /*48*/) = 'c'; 
 }

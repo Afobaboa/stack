@@ -14,7 +14,7 @@
 /**
  * 
  */
-#define CANARY_SWITCH_OFF
+// #define CANARY_SWITCH_OFF
 
 
 /**

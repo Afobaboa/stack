@@ -379,7 +379,7 @@ const char* StackGetErrorName(const stackError_t stackError)
         return GET_NAME(STACK_CANARY_RIGHT_SPOILED);
     
     case STACK_CANARY_LEFT_SPOILED:
-        return GET_NAME(STACK_CANARY_RIGHT_SPOILED);
+        return GET_NAME(STACK_CANARY_LEFT_SPOILED);
 
     case DATA_CANARY_RIGHT_SPOILED:
         return GET_NAME(DATA_CANARY_RIGHT_SPOILED);
@@ -600,6 +600,13 @@ static stackError_t StackVerify(Stack* stack)
         return STACK_NULL_PTR;
 
 
+    #ifndef CANARY_SWITCH_OFF
+    stackError = StackCanaryCheck(stack);
+    if (stackError != OK)
+        return stackError;
+    #endif // CANARY_SWITCH_OFF
+
+
     #ifndef DEBUG_SWITCH_OFF
     const size_t maxSizeValue = __SIZE_MAX__ / 2 - 1;
     
@@ -619,13 +626,6 @@ static stackError_t StackVerify(Stack* stack)
     if (stackError != OK)
         return stackError;
     #endif // DEBUG_SWITCH_OFF
-
-
-    #ifndef CANARY_SWITCH_OFF
-    stackError = StackCanaryCheck(stack);
-    if (stackError != OK)
-        return stackError;
-    #endif // CANARY_SWITCH_OFF
 
 
     return OK;
