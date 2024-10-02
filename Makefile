@@ -48,12 +48,12 @@ LOG_SUBDIR=logPrinter
 
 
 # Source files which we use
-SOURCE_FILES=main.cpp stack.cpp myRecalloc.cpp canary.cpp
+SOURCE_FILES=main.cpp stack.cpp myRecalloc.cpp canary.cpp murmurHash.cpp
 LOG_SOURCE_FILES=logPrinter.cpp
 
     
 # Header files which we use
-HEADER_FILES=stack.h myRecalloc.h canary.h stackConfigs.h
+HEADER_FILES=stack.h myRecalloc.h canary.h stackConfigs.h murmurHash.h
 LOG_HEADER_FILES=logPrinter.h logPrinterConfigs.h
 
 
@@ -142,13 +142,13 @@ clean:
 
 PUSH_POP_TEST_NAME=pushPopTest
 
-PUSH_POP_TEST_SOURCE_FILES=pushPopTest.cpp stack.cpp myRecalloc.cpp canary.cpp
+PUSH_POP_TEST_SOURCE_FILES=pushPopTest.cpp stack.cpp myRecalloc.cpp canary.cpp murmurHash.cpp
 PUSH_POP_TEST_SOURCES=$(patsubst %.cpp,$(SOURCES_DIR)/%.cpp,$(PUSH_POP_TEST_SOURCE_FILES))
 PUSH_POP_TEST_OBJECTS=$(patsubst %.cpp,$(OBJECTS_DIR)/%.o,$(PUSH_POP_TEST_SOURCE_FILES))
 
 
 # Test for StackPush() and StackPop()
-$(PUSH_POP_TEST_NAME): $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS)
+$(PUSH_POP_TEST_NAME): $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS) $(HEADERS) $(LOG_HEADERS)
 	@$(CC) $(DEBUG_FLAGS) $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS) -o $(PUSH_POP_TEST_NAME)
 
 # Test for StackPush() and StackPop() with RELEASE_FLAGS
