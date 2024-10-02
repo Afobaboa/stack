@@ -12,6 +12,10 @@
 #include "../headers/canary.h"
 #endif // CANARY_SWITCH_OFF
 
+#ifndef HASH_SWITCH_OFF
+#include "../headers/murmurHash.h"
+#endif // HASH_SWITCH_OFF
+
 
 //----------------------------------------------------------------------------------------
 
@@ -59,6 +63,11 @@ struct Stack
     StackInfo* stackInfo;       /**< Info about first stack definition.*/
     #endif // DEBUG_SWITCH_OFF
 
+    #ifndef HASH_SWITCH_OFF
+    hashData_t stackHash;       /**<  */
+    hashData_t dataHash;        /**<  */
+    #endif // HASH_SWITCH_OFF
+
     #ifndef CANARY_SWITCH_OFF
     canary_t rightCanary;       /**<  */
     #endif // CANARY_SWITCH_OFF
@@ -81,22 +90,6 @@ static const size_t MIN_STACK_CAPACITY = 16;
  * 
  */
 static bool StackIsInit(Stack* stack);
-
-
-/**
- * 
- */
-#ifndef DEBUG_SWITCH_OFF
-static void StackInfoPrint(StackInfo* stackInfo);
-#endif // DEBUG_SWITCH_OFF
-
-
-/**
- * 
- */
-#ifndef DEBUG_SWITCH_OFF
-static void StackPrintContent(Stack* stack);
-#endif // DEBUG_SWITCH_OFF
 
 
 /**
@@ -126,31 +119,72 @@ static stackError_t StackCompress(Stack* stack);
 /**
  * 
  */
-#ifndef DEBUG_SWITCH_OFF
-static void StackPrintFields(Stack* stack);
-#endif // DEBUG_SWITCH_OFF
-
-
-/**
- * 
- */
 static stackError_t StackVerify(Stack* stack);
 
 
+//----------------------------------------------------------------------------------------
+
+
+#ifndef DEBUG_SWITCH_OFF
+
 /**
  * 
  */
-#ifndef DEBUG_SWITCH_OFF
+static void StackPrintFields(Stack* stack);
+
+
+/**
+ * 
+ */
+static void StackInfoPrint(StackInfo* stackInfo);
+
+
+/**
+ * 
+ */
+static void StackPrintContent(Stack* stack);
+
+
+/**
+ * 
+ */
 static stackError_t StackInfoVerify(const StackInfo* stackInfo);
+
 #endif // DEBUG_SWITCH_OFF
 
 
+//----------------------------------------------------------------------------------------
+
+
+#ifndef CANARY_SWITCH_OFF
+
 /**
  * 
  */
-#ifndef CANARY_SWITCH_OFF
 static stackError_t StackCanaryCheck(Stack* stack);
+
 #endif // CANARY_SWITCH_OFF
+
+
+//----------------------------------------------------------------------------------------
+
+
+#ifndef HASH_SWITCH_OFF
+
+/**
+ * 
+ */
+static stackError_t StackHashSet(Stack* stack);
+
+
+/**
+ * 
+ */
+static stackError_t StackDataHashSet(Stack* stack);
+
+#endif // HASH_SWITCH_OFF
+
+
 
 
 //----------------------------------------------------------------------------------------
