@@ -14,7 +14,7 @@ static hashData_t CycleRightShift(hashData_t hashData, const size_t shift);
 
 
 void MurmurHash(hashData_t* hashBuffer,
-                hashData_t* dataPtr, const size_t dataLength)
+                hashData_t* dataPtr, const size_t byteChanksCount)
 {
     const hashData_t hashSeed = 0xDA52DA52;
 
@@ -27,7 +27,7 @@ void MurmurHash(hashData_t* hashBuffer,
 
     hashData_t hash = hashSeed;
 
-    for (size_t byteChankNum = 0; byteChankNum < dataLength; byteChankNum++)
+    for (size_t byteChankNum = 0; byteChankNum < byteChanksCount; byteChankNum++)
     {
         hashData_t byteChank = dataPtr[byteChankNum];
 
@@ -40,7 +40,7 @@ void MurmurHash(hashData_t* hashBuffer,
         hash = (hash * m) + n;
     }
 
-    hash = hash ^ dataLength;
+    hash = hash ^ byteChanksCount;
     hash = hash ^ (hash >> 16);
     hash = hash * 0x85EBCA6B;
     hash = hash ^ (hash >> 13);
@@ -52,17 +52,27 @@ void MurmurHash(hashData_t* hashBuffer,
 
 
 bool CheckMurmurHash(hashData_t* hashBuffer, 
-                     hashData_t* dataPtr, const size_t dataLength)
+                     hashData_t* dataPtr, const size_t byteChanksCount)
 {
     hashData_t hashCopy    = *hashBuffer;
     *hashBuffer = 0;
     hashData_t controlHash = 0;
-    MurmurHash(&controlHash, dataPtr, dataLength);
+    MurmurHash(&controlHash, dataPtr, byteChanksCount);
     *hashBuffer = hashCopy;
 
     if (hashCopy != controlHash)
         return false;
     
+    return true;
+}
+
+
+bool GetByteChanksCount(const size_t byteCount, size_t* chanksCountBuffer)
+{
+    if (byteCount % sizeof(hashData_t) != 0)
+        return false;
+
+    *chanksCountBuffer = byteCount / sizeof(hashData_t);
     return true;
 }
 
