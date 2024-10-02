@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "../headers/murmurHash.h"
 
 
@@ -14,7 +16,7 @@ static hashData_t CycleRightShift(hashData_t hashData, const size_t shift);
 
 
 void MurmurHash(hashData_t* hashBuffer,
-                hashData_t* dataPtr, const size_t byteChanksCount)
+                hashData_t* dataPtr, const size_t dataByteCount)
 {
     const hashData_t hashSeed = 0xDA52DA52;
 
@@ -27,7 +29,8 @@ void MurmurHash(hashData_t* hashBuffer,
 
     hashData_t hash = hashSeed;
 
-    for (size_t byteChankNum = 0; byteChankNum < byteChanksCount; byteChankNum++)
+    for (size_t byteChankNum = 0; byteChankNum < dataByteCount / sizeof(hashData_t); 
+                                                                        byteChankNum++)
     {
         hashData_t byteChank = dataPtr[byteChankNum];
 
@@ -40,7 +43,19 @@ void MurmurHash(hashData_t* hashBuffer,
         hash = (hash * m) + n;
     }
 
-    hash = hash ^ byteChanksCount;
+    size_t hashedByteCount = sizeof(hashData_t) * (dataByteCount / sizeof(hashData_t));
+    hashData_t remainigBytesChank = 0;
+    memmove(&remainigBytesChank, 
+            (char*) dataPtr + hashedByteCount, 
+            dataByteCount - hashedByteCount);
+
+    remainigBytesChank = remainigBytesChank * c1;
+    remainigBytesChank = CycleRightShift(remainigBytesChank, r1);
+    remainigBytesChank = remainigBytesChank * c2;
+
+    hash = hash ^ remainigBytesChank;
+
+    hash = hash ^ dataByteCount;
     hash = hash ^ (hash >> 16);
     hash = hash * 0x85EBCA6B;
     hash = hash ^ (hash >> 13);
@@ -52,27 +67,17 @@ void MurmurHash(hashData_t* hashBuffer,
 
 
 bool CheckMurmurHash(hashData_t* hashBuffer, 
-                     hashData_t* dataPtr, const size_t byteChanksCount)
+                     hashData_t* dataPtr, const size_t dataByteCount)
 {
     hashData_t hashCopy    = *hashBuffer;
     *hashBuffer = 0;
     hashData_t controlHash = 0;
-    MurmurHash(&controlHash, dataPtr, byteChanksCount);
+    MurmurHash(&controlHash, dataPtr, dataByteCount);
     *hashBuffer = hashCopy;
 
     if (hashCopy != controlHash)
         return false;
     
-    return true;
-}
-
-
-bool GetByteChanksCount(const size_t byteCount, size_t* chanksCountBuffer)
-{
-    if (byteCount % sizeof(hashData_t) != 0)
-        return false;
-
-    *chanksCountBuffer = byteCount / sizeof(hashData_t);
     return true;
 }
 

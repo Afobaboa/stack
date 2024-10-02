@@ -103,7 +103,7 @@ run: $(EXECUTABLE)
 
 # Make release version
 release: objects_dir clean
-	@$(CC) $(RELEASE_FLAGS) $(SOURCES) -o $(EXECUTABLE)
+	@$(CC) $(RELEASE_FLAGS) $(SOURCES) $(LOG_SOURCES) -o $(EXECUTABLE)
 
 
 # Make debug version

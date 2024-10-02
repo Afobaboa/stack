@@ -64,7 +64,7 @@ struct Stack
     #endif // DEBUG_SWITCH_OFF
 
     #ifndef HASH_SWITCH_OFF
-    hashData_t stackHash;       /**<  */
+    hashData_t structHash;      /**<  */
     hashData_t dataHash;        /**<  */
     #endif // HASH_SWITCH_OFF
 
@@ -174,13 +174,31 @@ static stackError_t StackCanaryCheck(Stack* stack);
 /**
  * 
  */
-static stackError_t StackHashSet(Stack* stack);
+static void StackStructHashSet(Stack* stack);
 
 
 /**
  * 
  */
-static stackError_t StackDataHashSet(Stack* stack);
+static void StackDataHashSet(Stack* stack);
+
+
+/**
+ * 
+ */
+static void StackHashSet(Stack* stack);
+
+
+/**
+ * 
+ */
+static void StackHashDelete(Stack* stack);
+
+
+/**
+ * 
+ */
+static stackError_t StackHashCheck(Stack* stack);
 
 #endif // HASH_SWITCH_OFF
 
@@ -227,12 +245,14 @@ stackError_t StackCreate(Stack**      stack, ON_DEBUG(StackInfo* stackInfo,)
     (*stack)->stackInfo = stackInfo;
     #endif // DEBUG_SWITCH_OFF
 
-
     #ifndef CANARY_SWITCH_OFF
     CanarySet(&((*stack)->leftCanary));
     CanarySet(&((*stack)->rightCanary));
     #endif // CANARY_SWITCH_OFF
 
+    #ifndef HASH_SWITCH_OFF
+    StackHashSet(*stack);
+    #endif // HASH_SWITCH_OFF
 
     STACK_SOFT_ASSERT(*stack);
 
@@ -265,23 +285,23 @@ stackError_t StackDelete(Stack** stack)
     free((*stack)->dataBuffer);
     (*stack)->dataBuffer = NULL;
 
-
     #ifndef DEBUG_SWITCH_OFF
     free((*stack)->stackInfo);
     (*stack)->stackInfo = NULL;
     #endif // DEBUG_SWITCH_OFF
 
-
     (*stack)->bufferCapacity = 0;
     (*stack)->elemCount      = 0;
     (*stack)->elemSize       = 0;
-
 
     #ifndef CANARY_SWITCH_OFF
     CanaryDelete(&((*stack)->leftCanary));
     CanaryDelete(&((*stack)->rightCanary));
     #endif // CANARY_SWITCH_OFF
-
+    
+    #ifndef HASH_SWITCH_OFF
+    StackHashDelete(*stack);
+    #endif // HASH_SWITCH_OFF
 
     free(*stack);
     *stack = NULL;
@@ -316,6 +336,10 @@ stackError_t StackPop(Stack* stack, void* elemBufferPtr)
 
     stack->elemCount -= 1;
 
+    #ifndef HASH_SWITCH_OFF
+    StackHashSet(stack);
+    #endif // HASH_SWITCH_OFF
+
     return OK;
 }
 
@@ -340,6 +364,10 @@ stackError_t StackPush(Stack* stack, void* elemPtr)
         return ALLOCATE_ERROR;
 
     stack->elemCount += 1;
+
+    #ifndef HASH_SWITCH_OFF
+    StackHashSet(stack);
+    #endif // HASH_SWITCH_OFF
 
     return OK;
 }
@@ -484,7 +512,7 @@ static stackError_t StackExpand(Stack* stack)
 {                       
     void* newDataBuffer = MyRecalloc(stack->dataBuffer, 
                                      stack->bufferCapacity * stack->elemSize 
-                                                        CANARY( + 2 * sizeof(canary_t)), 
+                                                        CANARY( + 1 * sizeof(canary_t)), 
                                      stack->bufferCapacity * 2 * stack->elemSize
                                                         CANARY( + 2 * sizeof(canary_t)), 
                                      1);
@@ -509,7 +537,7 @@ static stackError_t StackCompress(Stack* stack)
 {   
     void* newDataBuffer = MyRecalloc(stack->dataBuffer, 
                                      stack->bufferCapacity * stack->elemSize
-                                                       CANARY( + 2 * sizeof(canary_t)),
+                                                       CANARY( + 1 * sizeof(canary_t)),
                                      stack->bufferCapacity / 2 * stack->elemSize
                                                        CANARY( + 2 * sizeof(canary_t)), 
                                      1);
@@ -615,6 +643,13 @@ static void StackPrintFields(Stack* stack)
                     stack->elemSize,
                     stack->elemCount);
 
+    #ifndef HASH_SWITCH_OFF
+    LOG_DUMMY_PRINT("\tstructHash = %zu\n"
+                    "\tdataHash   = %zu\n",
+                    stack->structHash,
+                    stack->dataHash);
+    #endif // HASH_SWITCH_OFF
+
     #ifndef CANARY_SWITCH_OFF
     LOG_DUMMY_PRINT(("rightCanary = 0x"));
     LOG_PRINT_ELEM(&(stack->rightCanary), sizeof(canary_t));
@@ -683,6 +718,9 @@ static stackError_t StackInfoVerify(const StackInfo* stackInfo)
 #endif // DEBUG_SWITCH_OFF
 
 
+//----------------------------------------------------------------------------------------
+
+
 #ifndef CANARY_SWITCH_OFF
 static stackError_t StackCanaryCheck(Stack* stack)
 {
@@ -702,3 +740,55 @@ static stackError_t StackCanaryCheck(Stack* stack)
     return OK;
 }
 #endif // CANARY_SWITCH_OFF
+
+
+//----------------------------------------------------------------------------------------
+
+
+#ifndef HASH_SWITCH_OFF
+
+/**
+ * 
+ */
+static void StackStructHashSet(Stack* stack)
+{
+
+}
+
+
+/**
+ * 
+ */
+static void StackDataHashSet(Stack* stack)
+{
+
+}
+
+
+/**
+ * 
+ */
+static void StackHashSet(Stack* stack)
+{
+
+}
+
+
+/**
+ * 
+ */
+static void StackHashDelete(Stack* stack)
+{
+
+}
+
+
+/**
+ * 
+ */
+static stackError_t StackHashCheck(Stack* stack)
+{
+
+}
+
+#endif // HASH_SWITCH_OFF

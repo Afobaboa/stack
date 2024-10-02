@@ -99,6 +99,11 @@ enum STACK_ERRORS
     ,DATA_CANARY_RIGHT_SPOILED  /**<  */
     ,DATA_CANARY_LEFT_SPOILED   /**<  */
     #endif // CANARY_SWITCH_OFF
+
+    #ifndef HASH_SWITCH_OFF
+    ,STACK_HASH_WRONG           /**<  */
+    ,STACK_DATA_HASH_WRONG      /**<  */
+    #endif // HASH_SWITCH_OFF
 };
 typedef enum STACK_ERRORS stackError_t;
 
