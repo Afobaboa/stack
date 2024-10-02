@@ -87,5 +87,5 @@ bool CheckMurmurHash(hashData_t* hashBuffer,
 
 static hashData_t CycleRightShift(hashData_t hashData, const size_t shift)
 {
-    return (hashData >> shift) | (hashData << (sizeof(hashData) - shift));
+    return (hashData >> shift) | (hashData << (sizeof(hashData)*8 - shift));
 }

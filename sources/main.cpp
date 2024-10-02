@@ -32,17 +32,24 @@ int main()
         {
             LOG_PRINT(ERROR, "Stack error code = %s\n", StackGetErrorName(stackError));
             free(format);
+            StackDelete(&stack);
             return 1;
         }
     }
 
     STACK_DUMP(stack);
 
+    // *((char*) stack + 5) = 'l';
     for (size_t elemNum = 0; elemNum < elemCount; elemNum++)
     {
         stackError = StackPop(stack, &elemBuffer);
         if (stackError != OK)
+        {
+            printf("stackError = %s\n", StackGetErrorName(stackError));
+            free(format);
+            StackDelete(&stack);
             return 1;
+        }
 
         printf(format, elemNum);
         printf("%d\n", elemBuffer);

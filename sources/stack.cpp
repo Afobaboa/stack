@@ -174,13 +174,13 @@ static stackError_t StackCanaryCheck(Stack* stack);
 /**
  * 
  */
-static void StackStructHashSet(Stack* stack);
+static hashData_t StackGetStructHash(Stack* stack);
 
 
 /**
  * 
  */
-static void StackDataHashSet(Stack* stack);
+static hashData_t StackGetDataHash(Stack* stack);
 
 
 /**
@@ -198,7 +198,7 @@ static void StackHashDelete(Stack* stack);
 /**
  * 
  */
-static stackError_t StackHashCheck(Stack* stack);
+static stackError_t StackCheckHash(Stack* stack);
 
 #endif // HASH_SWITCH_OFF
 
@@ -282,6 +282,7 @@ stackError_t StackDelete(Stack** stack)
         return STACK_NULL_PTR;
     #endif // DEBUG_SWITCH_OFF
 
+    HASH(if (StackCheckHash(*stack) == OK))
     free((*stack)->dataBuffer);
     (*stack)->dataBuffer = NULL;
 
@@ -449,6 +450,15 @@ const char* StackGetErrorName(const stackError_t stackError)
     case DATA_CANARY_LEFT_SPOILED:
         return GET_NAME(DATA_CANARY_LEFT_SPOILED);
     #endif // CANARY_SWITCH_OFF
+
+
+    #ifndef HASH_SWITCH_OFF
+    case STACK_STRUCT_HASH_WRONG:
+        return GET_NAME(STACK_STRUCT_HASH_WRONG);
+    
+    case STACK_DATA_HASH_WRONG:
+        return GET_NAME(STACK_DATA_HASH_WRONG);
+    #endif // HASH_SWITCH_OFF
 
 
     default:
@@ -668,13 +678,17 @@ static stackError_t StackVerify(Stack* stack)
     if (stack == NULL)
         return STACK_NULL_PTR;
 
+    #ifndef HASH_SWITCH_OFF
+    stackError = StackCheckHash(stack);
+    if (stackError != OK)
+        return stackError;
+    #endif // HASH_SWITCH_OFF
 
     #ifndef CANARY_SWITCH_OFF
     stackError = StackCanaryCheck(stack);
     if (stackError != OK)
         return stackError;
     #endif // CANARY_SWITCH_OFF
-
 
     #ifndef DEBUG_SWITCH_OFF
     const size_t maxSizeValue = __SIZE_MAX__ / 2 - 1;
@@ -750,18 +764,39 @@ static stackError_t StackCanaryCheck(Stack* stack)
 /**
  * 
  */
-static void StackStructHashSet(Stack* stack)
+static hashData_t StackGetStructHash(Stack* stack)
 {
+    hashData_t structHashCopy = stack->structHash;
+    hashData_t dataHashCopy   = stack->dataHash;
+    StackHashDelete(stack);
 
+    hashData_t structHash = 0;
+    MurmurHash(&structHash, (hashData_t*) stack, sizeof(Stack));
+
+    stack->structHash = structHashCopy;
+    stack->dataHash   = dataHashCopy;
+
+    return structHash;
 }
 
 
 /**
  * 
  */
-static void StackDataHashSet(Stack* stack)
+static hashData_t StackGetDataHash(Stack* stack)
 {
+    hashData_t structHashCopy = stack->structHash;
+    hashData_t dataHashCopy   = stack->dataHash;
+    StackHashDelete(stack);
 
+    hashData_t dataHash = 0;
+    MurmurHash(&dataHash, (hashData_t*) stack->dataBuffer, 
+                CANARY(2 * sizeof(canary_t) + ) stack->bufferCapacity * stack->elemSize);
+
+    stack->structHash = structHashCopy;
+    stack->dataHash   = dataHashCopy;
+
+    return dataHash;
 }
 
 
@@ -770,7 +805,8 @@ static void StackDataHashSet(Stack* stack)
  */
 static void StackHashSet(Stack* stack)
 {
-
+    stack->structHash = StackGetStructHash(stack);
+    stack->dataHash   = StackGetDataHash(stack);
 }
 
 
@@ -779,16 +815,25 @@ static void StackHashSet(Stack* stack)
  */
 static void StackHashDelete(Stack* stack)
 {
-
+    stack->structHash = 0;
+    stack->dataHash   = 0;
 }
 
 
 /**
  * 
  */
-static stackError_t StackHashCheck(Stack* stack)
+static stackError_t StackCheckHash(Stack* stack)
 {
+    hashData_t structHash = StackGetStructHash(stack);
+    if (structHash != stack->structHash)
+        return STACK_STRUCT_HASH_WRONG;
 
+    hashData_t dataHash = StackGetDataHash(stack);
+    if (dataHash != stack->dataHash)
+        return STACK_DATA_HASH_WRONG;
+
+    return OK;
 }
 
 #endif // HASH_SWITCH_OFF
