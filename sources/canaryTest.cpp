@@ -86,13 +86,12 @@ int main()
 
 static bool StackLeftCanaryTest()
 {
-    printf("%s\n", __FUNCTION__);
     Stack* stack = NULL;
     STACK_CREATE(stack, 1);
 
     *((char*) stack) = 'f';
 
-    if (CHECK_PUSH_POP_RETURNED_ERROR(stack, STACK_CANARY_LEFT_SPOILED))
+    if (!CHECK_PUSH_POP_RETURNED_ERROR(stack, STACK_CANARY_LEFT_SPOILED))
     {
         StackDelete(&stack);
         return false;
@@ -105,14 +104,13 @@ static bool StackLeftCanaryTest()
 
 static bool StackRightCanaryTest()
 {
-    printf("%s\n", __FUNCTION__);
     Stack* stack = NULL;
     STACK_CREATE(stack, 1);
 
     *((char*) stack + sizeof(canary_t) + sizeof(void*) + 3 * sizeof(size_t) 
                                                      ON_DEBUG( + sizeof(void*))) = 'f';
     
-    if (CHECK_PUSH_POP_RETURNED_ERROR(stack, STACK_CANARY_LEFT_SPOILED))
+    if (!CHECK_PUSH_POP_RETURNED_ERROR(stack, STACK_CANARY_RIGHT_SPOILED))
     {
         StackDelete(&stack);
         return false;
@@ -131,7 +129,7 @@ static bool DataLeftCanaryTest()
     char* dataBuffer = *((char**) ((char*) stack + sizeof(canary_t)));
     *dataBuffer = 'f';
 
-    if (CHECK_PUSH_POP_RETURNED_ERROR(stack, DATA_CANARY_LEFT_SPOILED))
+    if (!CHECK_PUSH_POP_RETURNED_ERROR(stack, DATA_CANARY_LEFT_SPOILED))
     {
         StackDelete(&stack);
         return false;
@@ -150,7 +148,7 @@ static bool DataRightCanaryTest()
     char* dataBuffer = *((char**) ((char*) stack + sizeof(canary_t)));
     *(dataBuffer + sizeof(canary_t)) = 'f';
 
-    if (CHECK_PUSH_POP_RETURNED_ERROR(stack, DATA_CANARY_RIGHT_SPOILED))
+    if (!CHECK_PUSH_POP_RETURNED_ERROR(stack, DATA_CANARY_RIGHT_SPOILED))
     {
         StackDelete(&stack);
         return false;
@@ -164,7 +162,6 @@ static bool DataRightCanaryTest()
 static bool CheckPushPopReturnedError(Place place, 
                                       Stack* stack, stackError_t expectedStackError)
 {
-    printf("Laala\n");
     char         elem       = 'f';
     stackError_t stackError = OK;
 
@@ -175,7 +172,6 @@ static bool CheckPushPopReturnedError(Place place,
                                "\texpectedStackError = %s\n", 
                                 StackGetErrorName(stackError), 
                                 StackGetErrorName(expectedStackError));
-        printf("push\n");
         return false;
     }
 
@@ -186,7 +182,6 @@ static bool CheckPushPopReturnedError(Place place,
                                 "\texpectedStackError = %s\n", 
                                 StackGetErrorName(stackError),
                                 StackGetErrorName(expectedStackError));
-        printf("pop\n");
         return false;
     }
 
