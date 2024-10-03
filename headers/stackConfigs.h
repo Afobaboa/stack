@@ -15,7 +15,7 @@
 /**
  * 
  */
-// #define CRC32
+#define CRC32
 
 #ifndef CRC32
 /**

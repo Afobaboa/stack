@@ -1,3 +1,4 @@
+#include <immintrin.h>
 #include <string.h>
 
 #include "../headers/hash.h"
@@ -9,30 +10,30 @@
 /**
  * 
  */
-static hashData_t CycleRightShift(hashData_t hashData, const size_t shift);
+static hash32_t CycleRightShift(hash32_t hash, const size_t shift);
 
 
 //----------------------------------------------------------------------------------------
 
 
-void MURMUR32_Hash(hashData_t* hashBuffer,
-                hashData_t* dataPtr, const size_t dataByteCount)
+void MURMUR32_Hash(hash32_t* hashBuffer,
+                hash32_t* dataPtr, const size_t dataByteCount)
 {
-    const hashData_t hashSeed = 0xDA52DA52;
+    const hash32_t hashSeed = 0xDA52DA52;
 
-    const hashData_t c1 = 0xCC9E2D51;
-    const hashData_t c2 = 0x1B873593;
-    const hashData_t r1 = 15;
-    const hashData_t r2 = 13;
-    const hashData_t m  = 5;
-    const hashData_t n  = 0xE6546B64;
+    const hash32_t c1 = 0xCC9E2D51;
+    const hash32_t c2 = 0x1B873593;
+    const hash32_t r1 = 15;
+    const hash32_t r2 = 13;
+    const hash32_t m  = 5;
+    const hash32_t n  = 0xE6546B64;
 
-    hashData_t hash = hashSeed;
+    hash32_t hash = hashSeed;
 
-    for (size_t byteChankNum = 0; byteChankNum < dataByteCount / sizeof(hashData_t); 
+    for (size_t byteChankNum = 0; byteChankNum < dataByteCount / sizeof(hash32_t); 
                                                                         byteChankNum++)
     {
-        hashData_t byteChank = dataPtr[byteChankNum];
+        hash32_t byteChank = dataPtr[byteChankNum];
 
         byteChank = byteChank * c1;
         byteChank = CycleRightShift(byteChank, r1);
@@ -43,8 +44,8 @@ void MURMUR32_Hash(hashData_t* hashBuffer,
         hash = (hash * m) + n;
     }
 
-    size_t hashedByteCount = sizeof(hashData_t) * (dataByteCount / sizeof(hashData_t));
-    hashData_t remainigBytesChank = 0;
+    size_t hashedByteCount = sizeof(hash32_t) * (dataByteCount / sizeof(hash32_t));
+    hash32_t remainigBytesChank = 0;
     memmove(&remainigBytesChank, 
             (char*) dataPtr + hashedByteCount, 
             dataByteCount - hashedByteCount);
@@ -66,34 +67,24 @@ void MURMUR32_Hash(hashData_t* hashBuffer,
 }
 
 
-void CRC32_Hash(hashData_t* hashBuffer,
-                hashData_t* dataPtr, const size_t dataByteCount)
+void CRC32_Hash(hash32_t* hashBuffer,
+                hash32_t* dataPtr, const size_t dataByteCount)
 {
-    unsigned int crc = 0; // Начальное значение CRC
+    hash32_t crc = 0xFFFFFFFF; // Начальное значение CRC
 
-    asm (
-        "xor %%eax, %%eax;"      // Обнулить EAX (начальное значение CRC)
-        "test %length, %length;" // Проверить, равна ли длина нулю
-        "jz done;"               // Если длина 0, перейти к завершению
-        "1:;"
-        "crc32 %%eax, byte [%[data]];" // Вычислить CRC32 для текущего байта
-        "inc %[data];"           // Перейти к следующему байту
-        "dec %length;"         // Уменьшить счетчик длины
-        "jnz 1b;"                // Повторять, пока не достигнута длина 0
-        "done:;"
-        : "=a"(crc)              // Выход: CRC в EAX
-        : "[data]"(dataPtr), "length"(dataByteCount) // Вход: указатель на данные и длина
-        : "%eax"
-    );
+    for (size_t byteNum = 0; byteNum < dataByteCount ; byteNum++)
+    {
+        crc = _mm_crc32_u8(crc, *((unsigned char*) dataPtr + byteNum));
+    }
 
-    *hashBuffer = crc; // Вернуть результат CRC
+    *hashBuffer = ~crc; // Вернуть результат CRC
 }
 
 
 //----------------------------------------------------------------------------------------
 
 
-static hashData_t CycleRightShift(hashData_t hashData, const size_t shift)
+static hash32_t CycleRightShift(hash32_t hash, const size_t shift)
 {
-    return (hashData >> shift) | (hashData << (sizeof(hashData)*8 - shift));
+    return (hash >> shift) | (hash << (sizeof(hash)*8 - shift));
 }

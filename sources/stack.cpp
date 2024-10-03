@@ -64,8 +64,8 @@ struct Stack
     #endif // DEBUG_SWITCH_OFF
 
     #ifndef HASH_SWITCH_OFF
-    hashData_t structHash;      /**<  */
-    hashData_t dataHash;        /**<  */
+    hash32_t structHash;      /**<  */
+    hash32_t dataHash;        /**<  */
     #endif // HASH_SWITCH_OFF
 
     #ifndef CANARY_SWITCH_OFF
@@ -174,13 +174,13 @@ static stackError_t StackCanaryCheck(Stack* stack);
 /**
  * 
  */
-static hashData_t StackGetStructHash(Stack* stack);
+static hash32_t StackGetStructHash(Stack* stack);
 
 
 /**
  * 
  */
-static hashData_t StackGetDataHash(Stack* stack);
+static hash32_t StackGetDataHash(Stack* stack);
 
 
 /**
@@ -204,8 +204,8 @@ static stackError_t StackCheckHash(Stack* stack);
 /**
  * 
  */
-static void DoHash(hashData_t* hashBuffer, 
-                   hashData_t* dataPtr, const size_t dataByteCount);
+static void DoHash(hash32_t* hashBuffer, 
+                   hash32_t* dataPtr, const size_t dataByteCount);
 
 #endif // HASH_SWITCH_OFF
 
@@ -782,15 +782,15 @@ static stackError_t StackCanaryCheck(Stack* stack)
 /**
  * 
  */
-static hashData_t StackGetStructHash(Stack* stack)
+static hash32_t StackGetStructHash(Stack* stack)
 {
-    hashData_t structHashCopy = stack->structHash;
-    hashData_t dataHashCopy   = stack->dataHash;
+    hash32_t structHashCopy = stack->structHash;
+    hash32_t dataHashCopy   = stack->dataHash;
     StackHashDelete(stack);
 
-    hashData_t structHash = 0;
+    hash32_t structHash = 0;
 
-    DoHash(&structHash, (hashData_t*) stack, sizeof(Stack));
+    DoHash(&structHash, (hash32_t*) stack, sizeof(Stack));
 
     stack->structHash = structHashCopy;
     stack->dataHash   = dataHashCopy;
@@ -802,15 +802,15 @@ static hashData_t StackGetStructHash(Stack* stack)
 /**
  * 
  */
-static hashData_t StackGetDataHash(Stack* stack)
+static hash32_t StackGetDataHash(Stack* stack)
 {
-    hashData_t structHashCopy = stack->structHash;
-    hashData_t dataHashCopy   = stack->dataHash;
+    hash32_t structHashCopy = stack->structHash;
+    hash32_t dataHashCopy   = stack->dataHash;
     StackHashDelete(stack);
 
-    hashData_t dataHash = 0;
+    hash32_t dataHash = 0;
 
-    DoHash(&dataHash, (hashData_t*) stack->dataBuffer, 
+    DoHash(&dataHash, (hash32_t*) stack->dataBuffer, 
            CANARY(2 * sizeof(canary_t) + ) stack->bufferCapacity * stack->elemSize);
 
     stack->structHash = structHashCopy;
@@ -845,11 +845,11 @@ static void StackHashDelete(Stack* stack)
  */
 static stackError_t StackCheckHash(Stack* stack)
 {
-    hashData_t structHash = StackGetStructHash(stack);
+    hash32_t structHash = StackGetStructHash(stack);
     if (structHash != stack->structHash)
         return STACK_STRUCT_HASH_WRONG;
 
-    hashData_t dataHash = StackGetDataHash(stack);
+    hash32_t dataHash = StackGetDataHash(stack);
     if (dataHash != stack->dataHash)
         return STACK_DATA_HASH_WRONG;
 
@@ -857,8 +857,8 @@ static stackError_t StackCheckHash(Stack* stack)
 }
 
 
-static void DoHash(hashData_t* hashBuffer, 
-                   hashData_t* dataPtr, const size_t dataByteCount)
+static void DoHash(hash32_t* hashBuffer, 
+                   hash32_t* dataPtr, const size_t dataByteCount)
 {
     #ifdef CRC32
 

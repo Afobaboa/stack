@@ -15,7 +15,7 @@
 /**
  * 
  */
-typedef uint32_t hashData_t;
+typedef uint32_t hash32_t;
 
 
 //----------------------------------------------------------------------------------------
@@ -24,15 +24,15 @@ typedef uint32_t hashData_t;
 /**
  * 
  */
-void MURMUR32_Hash(hashData_t* hashBuffer,
-                   hashData_t* dataPtr, const size_t dataByteCount);
+void MURMUR32_Hash(hash32_t* hashBuffer,
+                   hash32_t* dataPtr, const size_t dataByteCount);
 
 
 /**
  * 
  */
-void CRC32_Hash(hashData_t* hashBuffer,
-                hashData_t* dataPtr, const size_t dataByteCount);
+void CRC32_Hash(hash32_t* hashBuffer,
+                hash32_t* dataPtr, const size_t dataByteCount);
 
 
 //----------------------------------------------------------------------------------------
