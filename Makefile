@@ -35,61 +35,73 @@ RELEASE_FLAGS=-Wmissing-declarations -Wempty-body -DNDEBUG -DLOG_SWITCH_OFF -mav
 #-----------------------------------------------------------------------------------------
 
 
-# Name of executable program
-EXECUTABLE=stack
-
-
 # Needed directories
 SOURCES_DIR=sources
 HEADERS_DIR=headers
 OBJECTS_DIR=objects
 
+
+# Compile object files for dubugging
+$(OBJECTS_DIR)/%.o: $(SOURCES_DIR)/%.cpp $(HEADERS) $(LOG_HEADERS) objects_dir
+	@$(CC) -c $(DEBUG_FLAGS) $< -o $@
+
+
+# Make OBJECTS_DIR if it doesn't exist
+objects_dir:
+	@if [ ! -d $(OBJECTS_DIR) ]; \
+	then                         \
+		mkdir $(OBJECTS_DIR);    \
+	fi
+
+
+# Clean objects dir
+clean:
+	@rm -f $(OBJECTS_DIR)/*.o
+
+
+#-----------------------------------------------------------------------------------------
+
+
+# Log files and directory
 LOG_SUBDIR=logPrinter
 
-
-# Source files which we use
-SOURCE_FILES=main.cpp stack.cpp myRecalloc.cpp canary.cpp hash.cpp
 LOG_SOURCE_FILES=logPrinter.cpp
-
-    
-# Header files which we use
-HEADER_FILES=stack.h myRecalloc.h canary.h stackConfigs.h hash.h
 LOG_HEADER_FILES=logPrinter.h logPrinterConfigs.h
 
-
-# Object file which are obtained by source files compilation
-OBJECT_FILES=$(patsubst %.cpp,%.o,$(SOURCE_FILES)) 
-LOG_OBJECT_FILES=$(patsubst %.cpp,%.o,$(LOG_SOURCE_FILES))
-
-
-# List of paths to files with dirictory
-SOURCES=$(patsubst %.cpp,$(SOURCES_DIR)/%.cpp,$(SOURCE_FILES))
 LOG_SOURCES=$(patsubst %.cpp,$(LOG_SUBDIR)/%.cpp,$(LOG_SOURCE_FILES))
-
-HEADERS=$(patsubst %.h,$(HEADERS_DIR)/%.h,$(HEADER_FILES))
 LOG_HEADERS=$(patsubst %.h,$(LOG_SUBDIR)/%.h,$(LOG_HEADER_FILES))
+LOG_OBJECTS=$(patsubst %.cpp,$(OBJECTS_DIR)/%.o,$(LOG_SOURCE_FILES))
 
-OBJECTS=$(patsubst %.o,$(OBJECTS_DIR)/%.o,$(OBJECT_FILES))
-LOG_OBJECTS=$(patsubst %.o,$(OBJECTS_DIR)/%.o,$(LOG_OBJECT_FILES))
+
+$(OBJECTS_DIR)/%.o: $(LOG_SUBDIR)/%.cpp $(HEADERS) $(LOG_HEADERS) objects_dir
+	@$(CC) -c $(DEBUG_FLAGS) $< -o $@
+
+
+# Clean log files
+log_clean:
+	@rm -f logs/log.txt logs/emergencyLog.txt
+
+
+#-----------------------------------------------------------------------------------------
+
+
+# Name of executable program
+EXECUTABLE=stack
+
+# Stack files
+STACK_SOURCE_FILES=stack.cpp myRecalloc.cpp canary.cpp hash.cpp
+STACK_HEADER_FILES=stack.h myRecalloc.h canary.h stackConfigs.h hash.h
+
+STACK_SOURCES=$(patsubst %.cpp,$(SOURCES_DIR)/%.cpp,$(STACK_SOURCE_FILES))
+STACK_HEADERS=$(patsubst %.h,$(HEADERS_DIR)/%.h,$(STACK_HEADER_FILES))
+STACK_OBJECTS=$(patsubst %.cpp,$(OBJECTS_DIR)/%.o,$(STACK_SOURCE_FILES)) 
 
 
 #-----------------------------------------------------------------------------------------
 
 
-# Printing lists of files for debugging
-print_sources: 
-	echo $(SOURCES) $(LOG_SOURCES)
-
-
-print_headers: 
-	echo $(HEADERS) $(LOG_HEADERS)
-
-
-print_objects:
-	echo $(OBJECTS)
-
-
-#-----------------------------------------------------------------------------------------
+MAIN_SOURCE=$(SOURCES_DIR)/main.cpp
+MAIN_OBJECT=$(patsubst $(SOURCES_DIR)/%.cpp, $(OBJECTS_DIR)/%.o, $(MAIN_SOURCE))
 
 
 # Make release version of program
@@ -103,38 +115,12 @@ run: $(EXECUTABLE)
 
 # Make release version
 release: objects_dir clean
-	@$(CC) $(RELEASE_FLAGS) $(SOURCES) $(LOG_SOURCES) -o $(EXECUTABLE)
+	@$(CC) $(RELEASE_FLAGS) $(MAIN_SOURCE) $(STACK_SOURCES) $(LOG_SOURCES) -o $(EXECUTABLE)
 
 
 # Make debug version
-debug: $(OBJECTS) $(LOG_OBJECTS)
-	@$(CC) $(DEBUG_FLAGS) $(OBJECTS) $(LOG_OBJECTS) -o $(EXECUTABLE)
-
-
-# Compile object files for dubugging
-$(OBJECTS_DIR)/%.o: $(SOURCES_DIR)/%.cpp $(HEADERS) $(LOG_HEADERS) objects_dir
-	@$(CC) -c $(DEBUG_FLAGS) $< -o $@
-
-$(OBJECTS_DIR)/%.o: $(LOG_SUBDIR)/%.cpp $(HEADERS) $(LOG_HEADERS) objects_dir
-	@$(CC) -c $(DEBUG_FLAGS) $< -o $@
-
-
-# Make OBJECTS_DIR if it doesn't exist
-objects_dir:
-	@if [ ! -d $(OBJECTS_DIR) ]; \
-	then                         \
-		mkdir $(OBJECTS_DIR);    \
-	fi
-
-
-# Clean log files
-log_clean:
-	@rm -f logs/log.txt logs/emergencyLog.txt
-
-
-# Clean objects dir
-clean:
-	@rm -f $(OBJECTS) $(LOG_OBJECTS) $(EXECUTABLE)
+debug: $(MAIN_OBJECT) $(STACK_OBJECTS) $(STACK_HEADERS) $(LOG_OBJECTS) $(LOG_HEADERS)
+	@$(CC) $(DEBUG_FLAGS) $(MAIN_OBJECT) $(STACK_OBJECTS) $(LOG_OBJECTS) -o $(EXECUTABLE)
 
 
 #-----------------------------------------------------------------------------------------
@@ -142,39 +128,44 @@ clean:
 
 PUSH_POP_TEST_NAME=pushPopTest
 
-PUSH_POP_TEST_SOURCE_FILES=pushPopTest.cpp stack.cpp myRecalloc.cpp canary.cpp murmurHash.cpp
-PUSH_POP_TEST_SOURCES=$(patsubst %.cpp,$(SOURCES_DIR)/%.cpp,$(PUSH_POP_TEST_SOURCE_FILES))
-PUSH_POP_TEST_OBJECTS=$(patsubst %.cpp,$(OBJECTS_DIR)/%.o,$(PUSH_POP_TEST_SOURCE_FILES))
+PUSH_POP_TEST_SOURCE=$(SOURCES_DIR)/pushPopTest.cpp
+PUSH_POP_TEST_OBJECT=$(patsubst $(SOURCES_DIR)/%.cpp,$(OBJECTS_DIR)/%.o, $\
+																$(PUSH_POP_TEST_SOURCE))
 
 
 # Test for StackPush() and StackPop()
-$(PUSH_POP_TEST_NAME): $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS) $(HEADERS) $(LOG_HEADERS)
-	@$(CC) $(DEBUG_FLAGS) $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS) -o $(PUSH_POP_TEST_NAME)
+$(PUSH_POP_TEST_NAME): $(PUSH_POP_TEST_OBJECT) $(STACK_OBJECTS) $(STACK_HEADERS) $\
+															$(LOG_OBJECTS) $(LOG_HEADERS)
+	@$(CC) $(DEBUG_FLAGS) $(PUSH_POP_TEST_OBJECT) $(STACK_OBJECTS) $(LOG_OBJECTS) \
+																-o $(PUSH_POP_TEST_NAME)
+
 
 # Test for StackPush() and StackPop() with RELEASE_FLAGS
-$(PUSH_POP_TEST_NAME)_release: objects_dir $(PUSH_POP_TEST_NAME)_clean
-	@$(CC) $(RELEASE_FLAGS) $(PUSH_POP_TEST_SOURCES) $(LOG_SOURCES) -o $(PUSH_POP_TEST_NAME)
-	@./$(PUSH_POP_TEST_NAME)
+$(PUSH_POP_TEST_NAME)_release: objects_dir clean
+	@$(CC) $(RELEASE_FLAGS) $(PUSH_POP_TEST_SOURCE) $(STACK_SOURCES) $(LOG_SOURCES) \
+															-o $(PUSH_POP_TEST_NAME)
 
 
 # Run test for StackPush() and StacPop()
 $(PUSH_POP_TEST_NAME)_run: $(PUSH_POP_TEST_NAME)
 	@./$<
 
-$(PUSH_POP_TEST_NAME)_clean:
-	@rm -f $(PUSH_POP_TEST_OBJECTS) $(LOG_OBJECTS) $(PUSH_POP_TEST_NAME)
-
 
 #-----------------------------------------------------------------------------------------
 
 
-CANARY_TEST_SOURCE_FILES=stack.cpp myRecalloc.cpp canary.cpp canaryTest.cpp
-CANARY_TEST_SOURCES=$(patsubst %.cpp,$(SOURCES_DIR)/%.cpp,$(CANARY_TEST_SOURCE_FILES))
-
 CANARY_TEST_NAME=canaryTest
 
-$(CANARY_TEST_NAME): objects_dir
-	@$(CC) $(DEBUG_FLAGS) -DHASH_SWITCH_OFF $(CANARY_TEST_SOURCES) $(LOG_SOURCES) -o $(CANARY_TEST_NAME)
+CANARY_TEST_SOURCE=$(SOURCES_DIR)/canaryTest.cpp
+CANARY_TEST_OBJECT=$(patsubst  $(SOURCES_DIR)/%.cpp,$(OBJECTS_DIR)/%.o, $\
+																$(CANARY_TEST_SOURCE))
+
+
+$(CANARY_TEST_NAME): $(CANARY_TEST_OBJECT) $(STACK_OBJECTS) $(LOG_OBJECTS) $\
+					 $(STACK_HEADERS) $(LOG_HEADERS)
+	@$(CC) $(DEBUG_FLAGS) -DHASH_SWITCH_OFF $(CANARY_TEST_OBJECT) $(STACK_OBJECTS) \
+											$(LOG_OBJECTS) -o $(CANARY_TEST_NAME)
+
 
 $(CANARY_TEST_NAME)_run: $(CANARY_TEST_NAME)
 	@./$<

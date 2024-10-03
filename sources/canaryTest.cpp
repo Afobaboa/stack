@@ -146,7 +146,7 @@ static bool DataRightCanaryTest()
     STACK_CREATE(stack, 1);
 
     char* dataBuffer = *((char**) ((char*) stack + sizeof(canary_t)));
-    *(dataBuffer + sizeof(canary_t)) = 'f';
+    *(dataBuffer + 16 + sizeof(canary_t)) = 'f';
 
     if (!CHECK_PUSH_POP_RETURNED_ERROR(stack, DATA_CANARY_RIGHT_SPOILED))
     {

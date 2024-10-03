@@ -8,7 +8,7 @@
 /**
  * 
  */
-// #define HASH_SWITCH_OFF
+#define HASH_SWITCH_OFF
 
 #ifndef HASH_SWITCH_OFF
 
