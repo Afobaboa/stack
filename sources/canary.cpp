@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------------
 
 
-static const canary_t CANARY = (signed long long) 0xFEEDFACECAFEBEEF;
+static const canary_t CANARY = (uint64_t) 0xFEEDFACECAFEBEEF;
 
 
 //----------------------------------------------------------------------------------------

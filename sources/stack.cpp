@@ -13,7 +13,7 @@
 #endif // CANARY_SWITCH_OFF
 
 #ifndef HASH_SWITCH_OFF
-#include "../headers/murmurHash.h"
+#include "../headers/hash.h"
 #endif // HASH_SWITCH_OFF
 
 
@@ -199,6 +199,13 @@ static void StackHashDelete(Stack* stack);
  * 
  */
 static stackError_t StackCheckHash(Stack* stack);
+
+
+/**
+ * 
+ */
+static void DoHash(hashData_t* hashBuffer, 
+                   hashData_t* dataPtr, const size_t dataByteCount);
 
 #endif // HASH_SWITCH_OFF
 
@@ -781,14 +788,9 @@ static hashData_t StackGetStructHash(Stack* stack)
     hashData_t dataHashCopy   = stack->dataHash;
     StackHashDelete(stack);
 
-    #ifdef MURMUR
     hashData_t structHash = 0;
-    MurmurHash(&structHash, (hashData_t*) stack, sizeof(Stack));
-    #endif // MURMUR
 
-    #ifdef CRC32
-
-    #endif // CRC32
+    DoHash(&structHash, (hashData_t*) stack, sizeof(Stack));
 
     stack->structHash = structHashCopy;
     stack->dataHash   = dataHashCopy;
@@ -806,15 +808,10 @@ static hashData_t StackGetDataHash(Stack* stack)
     hashData_t dataHashCopy   = stack->dataHash;
     StackHashDelete(stack);
 
-    #ifdef MURMUR
     hashData_t dataHash = 0;
-    MurmurHash(&dataHash, (hashData_t*) stack->dataBuffer, 
-                CANARY(2 * sizeof(canary_t) + ) stack->bufferCapacity * stack->elemSize);
-    #endif // MURMUR
 
-    #ifdef CRC32
-
-    #endif // CRC32
+    DoHash(&dataHash, (hashData_t*) stack->dataBuffer, 
+           CANARY(2 * sizeof(canary_t) + ) stack->bufferCapacity * stack->elemSize);
 
     stack->structHash = structHashCopy;
     stack->dataHash   = dataHashCopy;
@@ -857,6 +854,23 @@ static stackError_t StackCheckHash(Stack* stack)
         return STACK_DATA_HASH_WRONG;
 
     return OK;
+}
+
+
+static void DoHash(hashData_t* hashBuffer, 
+                   hashData_t* dataPtr, const size_t dataByteCount)
+{
+    #ifdef CRC32
+
+    CRC32_Hash(hashBuffer, dataPtr, dataByteCount);
+
+    #else
+
+    #ifdef MURMUR32
+    MURMUR32_Hash(hashBuffer, dataPtr, dataByteCount);
+    #endif // MURMUR32
+
+    #endif // CRC32
 }
 
 #endif // HASH_SWITCH_OFF

@@ -48,12 +48,12 @@ LOG_SUBDIR=logPrinter
 
 
 # Source files which we use
-SOURCE_FILES=main.cpp stack.cpp myRecalloc.cpp canary.cpp murmurHash.cpp
+SOURCE_FILES=main.cpp stack.cpp myRecalloc.cpp canary.cpp hash.cpp
 LOG_SOURCE_FILES=logPrinter.cpp
 
     
 # Header files which we use
-HEADER_FILES=stack.h myRecalloc.h canary.h stackConfigs.h murmurHash.h
+HEADER_FILES=stack.h myRecalloc.h canary.h stackConfigs.h hash.h
 LOG_HEADER_FILES=logPrinter.h logPrinterConfigs.h
 
 

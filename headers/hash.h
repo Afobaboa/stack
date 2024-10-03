@@ -24,15 +24,15 @@ typedef uint32_t hashData_t;
 /**
  * 
  */
-void MurmurHash(hashData_t* hashBuffer,
-                hashData_t* dataPtr, const size_t dataByteCount);
+void MURMUR32_Hash(hashData_t* hashBuffer,
+                   hashData_t* dataPtr, const size_t dataByteCount);
 
 
 /**
  * 
  */
-bool CheckMurmurHash(hashData_t* hashBuffer, 
-                     hashData_t* dataPtr, const size_t dataByteCount);
+void CRC32_Hash(hashData_t* hashBuffer,
+                hashData_t* dataPtr, const size_t dataByteCount);
 
 
 //----------------------------------------------------------------------------------------

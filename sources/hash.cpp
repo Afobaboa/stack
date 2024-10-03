@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "../headers/murmurHash.h"
+#include "../headers/hash.h"
 
 
 //----------------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ static hashData_t CycleRightShift(hashData_t hashData, const size_t shift);
 //----------------------------------------------------------------------------------------
 
 
-void MurmurHash(hashData_t* hashBuffer,
+void MURMUR32_Hash(hashData_t* hashBuffer,
                 hashData_t* dataPtr, const size_t dataByteCount)
 {
     const hashData_t hashSeed = 0xDA52DA52;
@@ -66,19 +66,27 @@ void MurmurHash(hashData_t* hashBuffer,
 }
 
 
-bool CheckMurmurHash(hashData_t* hashBuffer, 
-                     hashData_t* dataPtr, const size_t dataByteCount)
+void CRC32_Hash(hashData_t* hashBuffer,
+                hashData_t* dataPtr, const size_t dataByteCount)
 {
-    hashData_t hashCopy    = *hashBuffer;
-    *hashBuffer = 0;
-    hashData_t controlHash = 0;
-    MurmurHash(&controlHash, dataPtr, dataByteCount);
-    *hashBuffer = hashCopy;
+    unsigned int crc = 0; // Начальное значение CRC
 
-    if (hashCopy != controlHash)
-        return false;
-    
-    return true;
+    asm (
+        "xor %%eax, %%eax;"      // Обнулить EAX (начальное значение CRC)
+        "test %length, %length;" // Проверить, равна ли длина нулю
+        "jz done;"               // Если длина 0, перейти к завершению
+        "1:;"
+        "crc32 %%eax, byte [%[data]];" // Вычислить CRC32 для текущего байта
+        "inc %[data];"           // Перейти к следующему байту
+        "dec %length;"         // Уменьшить счетчик длины
+        "jnz 1b;"                // Повторять, пока не достигнута длина 0
+        "done:;"
+        : "=a"(crc)              // Выход: CRC в EAX
+        : "[data]"(dataPtr), "length"(dataByteCount) // Вход: указатель на данные и длина
+        : "%eax"
+    );
+
+    *hashBuffer = crc; // Вернуть результат CRC
 }
 
 

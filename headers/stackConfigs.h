@@ -21,7 +21,7 @@
 /**
  * 
  */
-#define MURMUR
+#define MURMUR32
 #endif // CRC32
 
 #endif // HASH_SWITCH_OFF
