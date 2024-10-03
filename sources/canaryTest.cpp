@@ -61,8 +61,8 @@ int main()
 
     if (StackLeftCanaryTest()  &&
         StackRightCanaryTest() &&
-        DataLeftCanaryTest()   /*&&
-        DataRightCanaryTest()*/)
+        DataLeftCanaryTest()   &&
+        DataRightCanaryTest())
     {
         ColoredPrintf(GREEN, "Canary test is complete.\n");
     }

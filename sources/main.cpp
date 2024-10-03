@@ -39,7 +39,7 @@ int main()
 
     STACK_DUMP(stack);
 
-    // *((char*) stack + 5) = 'l';
+    *((char*) stack + 5) = 'l';
     for (size_t elemNum = 0; elemNum < elemCount; elemNum++)
     {
         stackError = StackPop(stack, &elemBuffer);

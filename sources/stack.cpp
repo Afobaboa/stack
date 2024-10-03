@@ -282,8 +282,19 @@ stackError_t StackDelete(Stack** stack)
         return STACK_NULL_PTR;
     #endif // DEBUG_SWITCH_OFF
 
-    HASH(if (StackCheckHash(*stack) == OK))
-    free((*stack)->dataBuffer);
+    #ifndef HASH_SWITCH_OFF
+
+    if (CANARY(StackCanaryCheck(*stack) == OK &&) 
+        StackCheckHash(*stack) == OK)
+
+    #else
+    
+    #ifndef CANARY_SWITCH_OFF
+    if (StackCanaryCheck(*stack) == OK)
+    #endif // CANARY_SWITCH_OFF
+
+    #endif // HASH_SWITCH_OFF
+        free((*stack)->dataBuffer);
     (*stack)->dataBuffer = NULL;
 
     #ifndef DEBUG_SWITCH_OFF
@@ -770,8 +781,14 @@ static hashData_t StackGetStructHash(Stack* stack)
     hashData_t dataHashCopy   = stack->dataHash;
     StackHashDelete(stack);
 
+    #ifdef MURMUR
     hashData_t structHash = 0;
     MurmurHash(&structHash, (hashData_t*) stack, sizeof(Stack));
+    #endif // MURMUR
+
+    #ifdef CRC32
+
+    #endif // CRC32
 
     stack->structHash = structHashCopy;
     stack->dataHash   = dataHashCopy;
@@ -789,9 +806,15 @@ static hashData_t StackGetDataHash(Stack* stack)
     hashData_t dataHashCopy   = stack->dataHash;
     StackHashDelete(stack);
 
+    #ifdef MURMUR
     hashData_t dataHash = 0;
     MurmurHash(&dataHash, (hashData_t*) stack->dataBuffer, 
                 CANARY(2 * sizeof(canary_t) + ) stack->bufferCapacity * stack->elemSize);
+    #endif // MURMUR
+
+    #ifdef CRC32
+
+    #endif // CRC32
 
     stack->structHash = structHashCopy;
     stack->dataHash   = dataHashCopy;

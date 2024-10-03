@@ -81,7 +81,7 @@ int main()
     StackPushPopTestDelete(&stackTest);
     LOG_CLOSE();
 
-    ColoredPrintf(YELLOW, "Testing time = %zu s\n", clock() / CLOCKS_PER_SEC);
+    ColoredPrintf(YELLOW, "Testing time = %lg s\n", clock() / (double)CLOCKS_PER_SEC);
     return 0;
 }
 

@@ -10,6 +10,22 @@
  */
 // #define HASH_SWITCH_OFF
 
+#ifndef HASH_SWITCH_OFF
+
+/**
+ * 
+ */
+// #define CRC32
+
+#ifndef CRC32
+/**
+ * 
+ */
+#define MURMUR
+#endif // CRC32
+
+#endif // HASH_SWITCH_OFF
+
 
 /**
  * 
