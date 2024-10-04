@@ -115,7 +115,8 @@ run: $(EXECUTABLE)
 
 # Make release version
 release: objects_dir clean
-	@$(CC) $(RELEASE_FLAGS) $(MAIN_SOURCE) $(STACK_SOURCES) $(LOG_SOURCES) -o $(EXECUTABLE)
+	@$(CC) $(RELEASE_FLAGS) -DDEBUG_SWITCH_OFF $(MAIN_SOURCE) $(STACK_SOURCES) \
+														$(LOG_SOURCES) -o $(EXECUTABLE)
 
 
 # Make debug version

@@ -5,6 +5,8 @@
  * This stack has canary and hash data defence, of you don't switched it off.
  * 
  * Use Stack* type to declary stack. Don't forget init Stack* by NULL.
+ * Dont't change and use data at Stack* yourself. It's UB. Use this API instead.
+ * 
  * Use only macros STACK_CREATE to create the stack. 
  * Use StackPush() and StackPop() to push and pop elems.
  * Don't forget delete stack by StackDelete().

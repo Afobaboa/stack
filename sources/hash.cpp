@@ -7,6 +7,12 @@
 //----------------------------------------------------------------------------------------
 
 
+static const uint32_t hashMask = 0b0101;
+
+
+//----------------------------------------------------------------------------------------
+
+
 /**
  * 
  */
@@ -39,9 +45,12 @@ void MURMUR32_Hash(hash32_t* hashBuffer,
         byteChank = CycleRightShift(byteChank, r1);
         byteChank = byteChank * c2;
 
-        hash = hash ^ byteChank;
-        hash = CycleRightShift(hash, r2);
-        hash = (hash * m) + n;
+        if (~(byteChankNum ^ hashMask) + 1)
+        {
+            hash = hash ^ byteChank;
+            hash = CycleRightShift(hash, r2);
+            hash = (hash * m) + n;
+        }
     }
 
     size_t hashedByteCount = sizeof(hash32_t) * (dataByteCount / sizeof(hash32_t));

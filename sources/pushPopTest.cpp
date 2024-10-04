@@ -69,7 +69,7 @@ int main()
     LOG_OPEN();
     StackPushPopTest stackTest = {};
 
-    if (StackPushPopTestCreate(&stackTest, 2E1, 5) &&
+    if (StackPushPopTestCreate(&stackTest, 2E1, 50) &&
         DoStackPush(&stackTest) &&
         DoStackPop(&stackTest))
     {

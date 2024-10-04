@@ -35,7 +35,11 @@ bool CanaryCheck(canary_t* canaryPtr)
 }
 
 
-void CanaryDelete(canary_t* canaryPtr)
+bool CanaryDelete(canary_t* canaryPtr)
 {
+    if (canaryPtr == NULL)
+        return false;
+
     memset(canaryPtr, 0, sizeof(canary_t));
+    return true;
 }
