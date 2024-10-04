@@ -70,14 +70,14 @@ void MURMUR32_Hash(hash32_t* hashBuffer,
 void CRC32_Hash(hash32_t* hashBuffer,
                 hash32_t* dataPtr, const size_t dataByteCount)
 {
-    hash32_t crc = 0xFFFFFFFF; // Начальное значение CRC
+    hash32_t crc = 0xFFFFFFFF;
 
     for (size_t byteNum = 0; byteNum < dataByteCount ; byteNum++)
     {
         crc = _mm_crc32_u8(crc, *((unsigned char*) dataPtr + byteNum));
     }
 
-    *hashBuffer = ~crc; // Вернуть результат CRC
+    *hashBuffer = ~crc; 
 }
 
 
