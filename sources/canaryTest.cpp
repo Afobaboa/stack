@@ -4,8 +4,6 @@
 #include "../headers/canary.h"
 #include "../headers/stack.h"
 
-#include <stdio.h>
-
 
 //----------------------------------------------------------------------------------------
 
