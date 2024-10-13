@@ -56,7 +56,7 @@ void MURMUR32_Hash(hash32_t* hashBuffer,
 
     hash = hash ^ remainigBytesChank;
 
-    hash = hash ^ dataByteCount;
+    hash = hash ^ (hash32_t) dataByteCount;
     hash = hash ^ (hash >> 16);
     hash = hash * 0x85EBCA6B;
     hash = hash ^ (hash >> 13);
